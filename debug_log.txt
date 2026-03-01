@@ -1,0 +1,29 @@
+cmovim.php loaded at 2026-03-01 19:12:40
+Request: {"pg":"1010"}
+cmovim.php loaded at 2026-03-01 19:12:40
+Request: {"pg":"1010"}
+Session IDEMP: '1'
+cmovim.php loaded at 2026-03-01 19:49:24
+Request: {"pg":"1010"}
+cmovim.php loaded at 2026-03-01 19:49:24
+Request: {"pg":"1010"}
+Session IDEMP: 1
+cmovim.php loaded at 2026-03-01 19:49:49
+Request: {"pg":"1010"}
+cmovim.php loaded at 2026-03-01 19:49:49
+Request: {"pg":"1010"}
+Session IDEMP: 1
+MAud::save called at 2026-03-01 19:50:37
+Data: {"idemp":1,"idusu":2,"tabla":"kardex","accion":2,"idreg":"1"}
+cmovim.php loaded at 2026-03-01 19:50:42
+Request: {"pg":"1010"}
+cmovim.php loaded at 2026-03-01 19:50:42
+Request: {"pg":"1010"}
+Session IDEMP: 1
+MAud::save called at 2026-03-01 19:52:27
+Data: {"idemp":"1","idusu":2,"tabla":"kardex","accion":1,"idreg":"6"}
+cmovim.php loaded at 2026-03-01 19:52:30
+Request: {"pg":"1010"}
+cmovim.php loaded at 2026-03-01 19:52:30
+Request: {"pg":"1010"}
+Session IDEMP: '1'

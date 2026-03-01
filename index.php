@@ -1,84 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>StockPilot</title>
+    <title>StockPilot | Gestión de Inventario</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" xintegrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.3.0/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.3.0/js/dataTables.bootstrap5.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
-
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.3.0/css/dataTables.bootstrap5.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 
     <link rel="stylesheet" type="text/css" href="css/style.css">
 
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+
+    <script src="https://www.google.com/recaptcha/api.js?render=6LerVXwsAAAAAHShT8zytfLCwrjRxd0D-Z-lo8Jq"></script>
 </head>
 <body>
     <?php 
         require_once ("models/conexion.php");
         
-        // 🚀 LÓGICA DE CARGA DINÁMICA DE VISTAS 
-        $pg = $_GET['pg'] ?? 'inicio'; // Si no hay parámetro GET 'pg', usa 'inicio'
-        
-        $vista = 'views/vinis.php'; // ⬅️ VISTA POR DEFECTO (Inicio de Sesión)
+        // Lógica de carga de vistas
+        $pg = $_GET['pg'] ?? 'inicio';
+        $vista = 'views/vinis.php'; 
 
         if ($pg === 'olvido') {
-            $vista = 'views/volv.php'; // ⬅️ Olvido de Contraseña
+            $vista = 'views/volv.php';
         } elseif ($pg === 'reset') {
-            $vista = 'views/vrct.php'; // ⬅️ Cambio de Contraseña
+            $vista = 'views/vrct.php';
         } elseif ($pg === 'registro') {
-            $vista = 'views/vregusu.php'; // ⬅️ Registro de Usuario (Paso 1)
+            $vista = 'views/vregusu.php';
         } elseif ($pg === 'regemp') {
-             // ⬅️ ✅ NUEVA CONDICIÓN! Registro de Empresa (Paso 2)
             $vista = 'views/vregemp.php'; 
         }
     ?>
-    <header>
-        <?php
-        require_once("views/cabecera.php");
-        ?>
-    </header>
-    <section>
-        <?php
-        // 🔄 Incluye la vista determinada por la lógica anterior
-        include($vista);
-        ?>
-    </section>
-    <footer>
-        <?php
-        require_once("views/pie.php");
-        ?>
-    </footer>
+
+    <main class="login-wrapper">
+        <div class="login-side-visual d-none d-lg-flex">
+            <div class="overlay-content">
+                <div class="brand">
+                    <i class="fas fa-boxes-packing"></i>
+                    <span>StockPilot</span>
+                </div>
+                
+                <div class="visual-text">
+                    <h1>Tu inventario, <br>bajo control total.</h1>
+                    <p>Gestiona stock, proveedores y almacenes en una sola plataforma ágil y moderna.</p>
+                </div>
+
+                <div class="visual-footer">
+                    <p>© 2026 StockPilot Colombia. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-side-form">
+            <div class="form-scroll-area">
+                <div class="form-container-inner">
+                    <div class="mobile-brand d-lg-none">
+                        <i class="fas fa-boxes-packing text-primary"></i>
+                        <span>StockPilot</span>
+                    </div>
+
+                    <?php include($vista); ?>
+                    
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const err = urlParams.get('err');
-            
-            let title = '';
-            let text = '';
-            let show_alert = true;
+            let title = '', text = '', show_alert = true;
 
             switch(err) {
                 case 'inactivo_usu':
                     title = '¡Acceso Denegado! 🚫';
-                    text = 'Tu cuenta de usuario ha sido desactivada. Por favor, contacta al Superadministrador.';
+                    text = 'Tu cuenta de usuario ha sido desactivada.';
                     break;
                 case 'inactivo_emp':
                     title = '¡Acceso Denegado! 🏢❌';
-                    text = 'La empresa a la que perteneces ha sido desactivada. Por favor, contacta al Superadministrador.';
+                    text = 'La empresa ha sido desactivada.';
                     break;
                 case 'ok':
                     title = '¡Error de Credenciales! 🔑';
-                    text = 'Correo electrónico o contraseña incorrectos. Inténtalo de nuevo.';
+                    text = 'Correo o contraseña incorrectos.';
+                    break;
+                // ⬇️ 2. ALERTA PARA FALLO DE RECAPTCHA
+                case 'recaptcha_fail':
+                    title = 'Seguridad reCAPTCHA 🤖';
+                    text = 'No se pudo verificar que seas un humano. Inténtalo de nuevo.';
+                    break;
+                case 'campos_vacios':
+                    title = 'Campos Incompletos 📝';
+                    text = 'Por favor, llena todos los datos e intenta de nuevo.';
                     break;
                 default:
                     show_alert = false;
@@ -90,7 +109,7 @@
                     icon: 'error',
                     title: title,
                     text: text,
-                    confirmButtonColor: '#dc3545',
+                    confirmButtonColor: '#3b5998',
                     confirmButtonText: 'Aceptar'
                 });
             }

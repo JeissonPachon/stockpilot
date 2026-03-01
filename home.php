@@ -86,7 +86,7 @@ require_once("models/seg.php");
              elseif($pg==1012)
                 require_once("views/vval.php"); // 1012: Valores
              elseif($pg==1013)
-                require_once("views/vsolrsal.php"); // 1013: Solicitud Salida
+                require_once("views/vsolsal.php"); // 1013: Solicitud Salida
              elseif($pg==1014)
                 require_once("views/vdetsal.php"); // 1014: Detalle salida
              elseif($pg==1015)
