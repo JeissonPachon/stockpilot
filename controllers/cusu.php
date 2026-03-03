@@ -29,12 +29,63 @@ $fec_crea  = isset($_POST['fec_crea']) ? $_POST['fec_crea'] : date('Y-m-d H:i:s'
 $fec_actu  = isset($_POST['fec_actu']) ? $_POST['fec_actu'] : date('Y-m-d H:i:s');
 $act       = isset($_POST['act']) ? $_POST['act'] : 1;
 
+// ✅ NUEVO: Procesar carga de imagen
+$image_error = null;
+if (isset($_FILES['imgusu']) && $_FILES['imgusu']['error'] == 0) {
+    $upload_dir = 'img/uploads/usuarios/';
+    
+    // Crear directorio si no existe
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+    
+    $file_name = $_FILES['imgusu']['name'];
+    $file_tmp = $_FILES['imgusu']['tmp_name'];
+    $file_size = $_FILES['imgusu']['size'];
+    $file_error = $_FILES['imgusu']['error'];
+    
+    // Validar tamaño (máximo 5MB)
+    $max_size = 5 * 1024 * 1024; // 5MB
+    if ($file_size > $max_size) {
+        $image_error = 'El archivo es muy grande. Máximo 5MB.';
+    }
+    
+    // Validar tipo de archivo
+    $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+    $file_type = mime_content_type($file_tmp);
+    if (!in_array($file_type, $allowed_types)) {
+        $image_error = 'Formato de imagen no permitido. Use JPG, PNG o GIF.';
+    }
+    
+    if (!$image_error) {
+        // Generar nombre único para la imagen
+        $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
+        $unique_filename = 'usuario_' . time() . '_' . rand(1000, 9999) . '.' . $file_extension;
+        $file_path = $upload_dir . $unique_filename;
+        
+        if (move_uploaded_file($file_tmp, $file_path)) {
+            $imgusu = $file_path; // Guardar la ruta relativa
+        } else {
+            $image_error = 'Error al subir el archivo. Intente de nuevo.';
+        }
+    }
+} else if (isset($_FILES['imgusu']) && $_FILES['imgusu']['error'] != 4) {
+    // Error 4 = no se subió archivo (normal si no se selecciona)
+    $image_error = 'Error en la carga del archivo.';
+}
+
 $ope = isset($_REQUEST['ope']) ? $_REQUEST['ope'] : NULL;
 $datOne = NULL;
 
 $musu->setIdusu($idusu);
 
 if($ope == "save"){
+    // Validar si hay error en la carga de imagen
+    if ($image_error) {
+        header("Location: home.php?pg=$pg&error=" . urlencode($image_error));
+        exit;
+    }
+    
     $musu->setNomusu($nomusu);
     $musu->setApeusu($apeusu);
     $musu->setTdousu($tdousu);

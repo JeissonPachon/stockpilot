@@ -10,6 +10,7 @@ $act = isset($_POST['act']) ? $_POST['act']:NULL;
 $ope = isset($_REQUEST['ope']) ? $_REQUEST['ope']:NULL;
 $datOne = NULL;
 $mpag->setIdpag($idpag);
+
 if($ope == "save"){
     $mpag->setNompag($nompag);
     $mpag->setFec_crea($fec_crea);
@@ -17,8 +18,12 @@ if($ope == "save"){
     $mpag->setAct($act);
     if(!$idpag) $mpag->save(); else $mpag->edit();
 }
-if($ope =="eli" && $idpag) $mpag->del();
+
+// NO ejecutar eliminación aquí - usar endpoint AJAX solo
+// if($ope =="eli" && $idpag) $mpag->del();
+
 if($ope =="edi" && $idpag) $datOne = $mpag->getOne();
 $datAll = $mpag->getAll();
 
 ?>
+

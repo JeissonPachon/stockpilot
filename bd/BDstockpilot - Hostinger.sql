@@ -257,15 +257,18 @@ CREATE TABLE pxp (
     idpag INT(10)
 );
 
-CREATE TABLE auditoria (
+CREATE TABLE IF NOT EXISTS auditoria (
     idaud INT(10) PRIMARY KEY AUTO_INCREMENT,
     idemp INT(10),
     idusu INT(10),
     tabla VARCHAR(50),
-    accion TINYINT(2) COMMENT '1=INSERT, 2=UPDATE, 3=DELETE',
+    accion TINYINT(2) COMMENT'' ,
     idreg INT(10),
-    datos_ant TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-    datos_nue TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+    datos_ant TEXT,
+    datos_nue TEXT,
+    email VARCHAR(100) COMMENT'' ,
+    exitoso TINYINT(1) COMMENT '',
+    navegador VARCHAR(255) COMMENT'' ,
     fecha DATETIME,
     ip VARCHAR(45)
 );
@@ -284,7 +287,7 @@ CREATE TABLE lote (
 
 -- Mantengo índices únicos de negocio (si quieres que los quite, lo hago)
 ALTER TABLE inventario ADD UNIQUE KEY uk_inv_emp_prod_ubi (idemp, idprod, idubi);
-ALTER TABLE kardex ADD UNIQUE KEY uk_kardex (idemp, anio, mes);
+
 
 -- Para seguir el estilo "instructor" añadimos índices en las tablas intermedias y FKs después
 ALTER TABLE usuario_empresa ADD KEY fk_ue_idusu (idusu);
@@ -297,8 +300,7 @@ ALTER TABLE pxp ADD KEY fk_pxp_idpag (idpag);
 ALTER TABLE proveedor ADD KEY fk_prv_idubi (idubi);
 ALTER TABLE proveedor ADD KEY fk_prv_idemp (idemp);
 
-ALTER TABLE ubicacion ADD KEY fk_ubi_idemp (idemp);
-ALTER TABLE ubicacion ADD KEY fk_ubi_idresp (idresp);
+
 
 ALTER TABLE producto ADD KEY fk_prod_idcat (idcat);
 ALTER TABLE producto ADD KEY fk_prod_idemp (idemp);
@@ -307,10 +309,7 @@ ALTER TABLE inventario ADD KEY fk_inv_idemp (idemp);
 ALTER TABLE inventario ADD KEY fk_inv_idprod (idprod);
 ALTER TABLE inventario ADD KEY fk_inv_idubi (idubi);
 
-ALTER TABLE movim ADD KEY fk_movim_idkar (idkar);
-ALTER TABLE movim ADD KEY fk_movim_idprod (idprod);
-ALTER TABLE movim ADD KEY fk_movim_idubi (idubi);
-ALTER TABLE movim ADD KEY fk_movim_idusu (idusu);
+
 
 ALTER TABLE solentrada ADD KEY fk_solent_idemp (idemp);
 ALTER TABLE solentrada ADD KEY fk_solent_idprov (idprov);
@@ -345,8 +344,7 @@ ALTER TABLE usuario_empresa
 
 ALTER TABLE empresa ADD CONSTRAINT fkemus FOREIGN KEY (idusu) REFERENCES usuario(idusu);
 
-ALTER TABLE ubicacion ADD CONSTRAINT fkubem FOREIGN KEY (idemp) REFERENCES empresa(idemp);
-ALTER TABLE ubicacion ADD CONSTRAINT fkubus FOREIGN KEY (idresp) REFERENCES usuario(idusu);
+
 
 ALTER TABLE categoria ADD CONSTRAINT fkcaem FOREIGN KEY (idemp) REFERENCES empresa(idemp);
 
@@ -402,6 +400,26 @@ ALTER TABLE auditoria ADD CONSTRAINT fkauus FOREIGN KEY (idusu) REFERENCES usuar
 
 ALTER TABLE lote ADD CONSTRAINT fk_lote_prod FOREIGN KEY (idprod) REFERENCES producto(idprod);
 
+
+ALTER TABLE auditoria ADD KEY idx_aud_idemp (idemp);
+ALTER TABLE auditoria ADD KEY idx_aud_idusu (idusu);
+ALTER TABLE auditoria ADD KEY idx_aud_fecha (fecha);
+ALTER TABLE auditoria ADD KEY idx_aud_tabla (tabla);
+
+
+ALTER TABLE ubicacion ADD KEY idx_ubi_idemp (idemp);
+ALTER TABLE ubicacion ADD KEY idx_ubi_idresp (idresp);
+
+
+ALTER TABLE kardex ADD UNIQUE KEY uk_kardex (idemp, anio, mes);
+ALTER TABLE kardex ADD KEY idx_kar_idemp (idemp);
+
+
+ALTER TABLE movim ADD KEY idx_movim_idkar (idkar);
+ALTER TABLE movim ADD KEY idx_movim_idprod (idprod);
+ALTER TABLE movim ADD KEY idx_movim_idubi (idubi);
+ALTER TABLE movim ADD KEY idx_movim_idusu (idusu);
+ALTER TABLE movim ADD KEY idx_movim_fecmov (fecmov);
 
 
 

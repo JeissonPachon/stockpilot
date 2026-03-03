@@ -960,6 +960,12 @@ form .form-group {
 .table thead th {
     background-color: #f5f6f8;
     font-weight: 600;
+    color: #000; 
+}
+.table thead.table-dark th {
+    background-color: #212529; /* Fondo oscuro */
+    color: #fff; /* Texto blanco para máximo contraste */
+    font-weight: 600;
 }
 
 /* Espaciado entre botones de acciones */

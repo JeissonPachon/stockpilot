@@ -35,10 +35,10 @@ require_once('controllers/cpag.php');
                 <td><?=$dt['idpag']."-".$dt['nompag'];?></td>
                 <td><?=$dt['ruta'];?></td>
                 <td>
-                    <a href="index.php?pg=<?=$pg;?>&idpag=<?=$dt['idpag'];?>&ope=edi" title="Editar">
+                    <a href="javascript:void(0);" onclick="editarPagina(<?=$dt['idpag'];?>);" title="Editar">
                     <i class="fa-solid fa-pen-to-square fa-2x"></i>
                     </a>
-                    <a href="index.php?pg=<?=$pg;?>&idpag=<?=$dt['idpag'];?>&ope=eli" title="Eliminar" onclick="return eliminar();">
+                    <a href="javascript:void(0);" onclick="deletePagina(<?=$dt['idpag'];?>);" title="Eliminar">
                         <i class="fa-solid fa-trash-can fa-2x"></i>
                     </a>
                 </td>
@@ -54,3 +54,40 @@ require_once('controllers/cpag.php');
             </tr>
         </thead>
     </table>
+
+<script>
+function editarPagina(idpag) {
+    // Usar AJAX para cargar el formulario de edición sin perder sesión
+    fetch('controllers/cpag.php?idpag=' + encodeURIComponent(idpag) + '&ope=edi')
+        .then(response => response.text())
+        .then(data => {
+            // Si se obtiene correctamente, redirigir con AJAX para mantener sesión
+            // O mejor aún, cargar en modal/sección
+            // Por simplicidad, usar GET pero con session mantenida
+            window.location.href = 'home.php?pg=<?=$pg;?>&idpag=' + encodeURIComponent(idpag) + '&ope=edi';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar el formulario de edición');
+        });
+}
+
+function deletePagina(idpag) {
+    if (!confirm('¿Está seguro de que desea eliminar esta página?')) return;
+    
+    fetch('controllers/cpag_delete.php?idpag=' + encodeURIComponent(idpag))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message || 'Página eliminada');
+                location.reload();
+            } else {
+                alert('Error: ' + (data.message || 'No se pudo eliminar'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar la página');
+        });
+}
+</script>

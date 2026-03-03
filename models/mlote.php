@@ -3,67 +3,162 @@ class Mlote {
     // Atributos
     private $idlote;
     private $idprod;
-    private $codlote;
+    private $codlot;
+    private $fecing;
     private $fecven;
-    private $cant;
-    private $fec_crea;
-    private $fec_actu;
+    private $cantini;
+    private $cantact;
+    private $cstuni;
 
     // Getters
-    function getIdlote(){ return $this->idlote; }
-    function getIdprod(){ return $this->idprod; }
-    function getCodlote(){ return $this->codlote; }
-    function getFecven(){ return $this->fecven; }
-    function getCant(){ return $this->cant; }
-    function getFec_crea(){ return $this->fec_crea; }
-    function getFec_actu(){ return $this->fec_actu; }
+    function getIdlote() { return $this->idlote;   }
+    function getIdprod   () { return $this->idprod;   }
+    function getCodlot   () { return $this->codlot;   }
+    function getFecing   () { return $this->fecing;   }
+    function getFecven   () { return $this->fecven;   }
+    function getCantini  () { return $this->cantini;  }
+    function getCantact  () { return $this->cantact;  }
+    function getCstuni   () { return $this->cstuni;   }
 
     // Setters
-    function setIdlote($idlote){ $this->idlote = $idlote; }
-    function setIdprod($idprod){ $this->idprod = $idprod; }
-    function setCodlote($codlote){ $this->codlote = $codlote; }
-    function setFecven($fecven){ $this->fecven = $fecven; }
-    function setCant($cant){ $this->cant = $cant; }
-    function setFec_crea($fec_crea){ $this->fec_crea = $fec_crea; }
-    function setFec_actu($fec_actu){ $this->fec_actu = $fec_actu; }
+    function setIdlote  ($v) { $this->idlote  = $v; }
+    function setIdprod  ($v) { $this->idprod  = $v; }
+    function setCodlot ($v) { $this->codlot = $v; }
 
-    // Guardar nuevo
-    function save(){
-        $sql = "INSERT INTO lote (idprod, codlote, fecven, cant, fec_crea, fec_actu) 
-                VALUES ('$this->idprod', '$this->codlote', '$this->fecven', '$this->cant', NOW(), NOW())";
-        return mysqli_query($GLOBALS['cn'], $sql);
+    function setFecing  ($v) { $this->fecing  = $v; }
+    function setFecven  ($v) { $this->fecven  = $v; }
+    function setCantini ($v) { $this->cantini = $v; }
+    function setCantact ($v) { $this->cantact = $v; }
+    function setCstuni  ($v) { $this->cstuni  = $v; }
+
+    // ==================== MÉTODOS ====================
+
+    public function getAll() {
+        try {
+            $sql = "SELECT l.*, p.nomprod 
+                    FROM lote l 
+                    LEFT JOIN producto p ON l.idprod = p.idprod 
+                    ORDER BY l.idlote DESC";
+            $modelo    = new conexion();
+            $conexion  = $modelo->get_conexion();
+            $res       = $conexion->prepare($sql);
+            $res->execute();
+            return $res->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            men($e->getMessage());
+        }
     }
 
-    // Actualizar
-    function upd(){
-        $sql = "UPDATE lote SET 
-                    idprod = '$this->idprod',
-                    codlote = '$this->codlote',
-                    fecven = '$this->fecven',
-                    cant = '$this->cant',
-                    fec_actu = NOW()
-                WHERE idlote = '$this->idlote'";
-        return mysqli_query($GLOBALS['cn'], $sql);
+    public function getOne() {
+        try {
+            $sql = "SELECT l.*, p.nomprod 
+                    FROM lote l 
+                    LEFT JOIN producto p ON l.idprod = p.idprod 
+                    WHERE l.idlote = :idlote";
+            $modelo   = new conexion();
+            $conexion = $modelo->get_conexion();
+            $res      = $conexion->prepare($sql);
+            $res->bindParam(':idlote', $this->idlote);
+            $res->execute();
+            $resultado = $res->fetch(PDO::FETCH_ASSOC);
+            return $resultado ?: []; // devuelve array vacío si no existe
+        } catch (Exception $e) {
+            men($e->getMessage());
+        }
     }
 
-    // Eliminar
-    function del(){
-        $sql = "DELETE FROM lote WHERE idlote = '$this->idlote'";
-        return mysqli_query($GLOBALS['cn'], $sql);
+    public function save() {
+        try {
+            $sql = "INSERT INTO lote 
+                    (idprod, codlot, fecing, fecven, cantini, cantact, cstuni) 
+                    VALUES 
+                    (:idprod, :codlot, :fecing, :fecven, :cantini, :cantact, :cstuni)";
+            $modelo   = new conexion();
+            $conexion = $modelo->get_conexion();
+            $res      = $conexion->prepare($sql);
+
+            $res->bindParam(':idprod',   $this->idprod);
+            $res->bindParam(':codlot',  $this->codlot);
+            $res->bindParam(':fecing',   $this->fecing);
+            $res->bindParam(':fecven',   $this->fecven);
+            $res->bindParam(':cantini',  $this->cantini);
+            $res->bindParam(':cantact',  $this->cantact);
+            $res->bindParam(':cstuni',   $this->cstuni);
+
+            $res->execute();
+            men("Guardado correctamente");
+            return true;
+        } catch (Exception $e) {
+            men($e->getMessage());
+            return false;
+        }
     }
 
-    // Obtener uno
-    function getOne(){
-        $sql = "SELECT * FROM lote WHERE idlote = '$this->idlote'";
-        $res = mysqli_query($GLOBALS['cn'], $sql);
-        return mysqli_fetch_all($res, MYSQLI_ASSOC);
+    public function edit() {
+        try {
+            $sql = "UPDATE lote SET 
+                        idprod   = :idprod,
+                        codlot  = :codlot,
+                        fecing   = :fecing,
+                        fecven   = :fecven,
+                        cantini  = :cantini,
+                        cantact  = :cantact,
+                        cstuni   = :cstuni
+                    WHERE idlote = :idlote";
+            $modelo   = new conexion();
+            $conexion = $modelo->get_conexion();
+            $res      = $conexion->prepare($sql);
+
+            $res->bindParam(':idlote',  $this->idlote);
+            $res->bindParam(':idprod',  $this->idprod);
+            $res->bindParam(':codlot', $this->codlot);
+            $res->bindParam(':fecing',  $this->fecing);
+            $res->bindParam(':fecven',  $this->fecven);
+            $res->bindParam(':cantini', $this->cantini);
+            $res->bindParam(':cantact', $this->cantact);
+            $res->bindParam(':cstuni',  $this->cstuni);
+
+            $res->execute();
+            men("Actualizado correctamente");
+            return true;
+        } catch (Exception $e) {
+            men($e->getMessage());
+            return false;
+        }
     }
 
-    // Obtener todos
-    function getAll(){
-        $sql = "SELECT * FROM lote ORDER BY idlote DESC";
-        $res = mysqli_query($GLOBALS['cn'], $sql);
-        return mysqli_fetch_all($res, MYSQLI_ASSOC);
+    public function del() {
+        try {
+            $sql = "DELETE FROM lote WHERE idlote = :idlote";
+            $modelo   = new conexion();
+            $conexion = $modelo->get_conexion();
+            $res      = $conexion->prepare($sql);
+            $res->bindParam(':idlote', $this->idlote);
+            $res->execute();
+            men("Eliminado correctamente");
+        } catch (Exception $e) {
+            men($e->getMessage());
+        }
+    }
+
+    // Opcional: contar cuántos movimientos tiene este lote (para no borrarlo si tiene detalle)
+    public function tieneMovimientos() {
+        try {
+            $sql = "SELECT COUNT(*) AS total FROM detsalida WHERE idlote = :idlote 
+                    UNION ALL 
+                    SELECT COUNT(*) FROM detcompra WHERE idlote = :idlote";
+            $modelo   = new conexion();
+            $conexion = $modelo->get_conexion();
+            $res      = $conexion->prepare($sql);
+            $res->bindParam(':idlote', $this->idlote);
+            $res->execute();
+            $resultados = $res->fetchAll(PDO::FETCH_COLUMN);
+            $total = array_sum($resultados);
+            return $total > 0;
+        } catch (Exception $e) {
+            men($e->getMessage());
+            return true; // por seguridad no borrar si falla
+        }
     }
 }
 ?>

@@ -4,7 +4,7 @@ require_once('controllers/cusu.php');
 
 <h2><i class="fas fa-user"></i> Gestión de Usuarios</h2>
 
-<form action="home.php?pg=<?= $pg ?>" method="POST">
+<form action="home.php?pg=<?= $pg ?>" method="POST" enctype="multipart/form-data">
     <div class="row">
 
         <input type="hidden" name="idusu" value="<?php if($datOne && isset($datOne['idusu'])) echo $datOne['idusu']; ?>">
@@ -54,9 +54,17 @@ require_once('controllers/cusu.php');
         </div>
 
         <div class="form-group col-md-6">
-            <label for="imgusu">Foto / Imagen (URL)</label>
-            <input type="text" name="imgusu" id="imgusu" class="form-control"
-                value="<?php if($datOne) echo $datOne['imgusu']; ?>">
+            <label for="imgusu">Foto / Imagen</label>
+            <div class="input-group">
+                <input type="file" name="imgusu" id="imgusu" class="form-control" accept="image/*">
+                <small class="form-text text-muted d-block mt-1">Formatos: JPG, PNG, GIF (máx. 5MB)</small>
+            </div>
+            <?php if($datOne && !empty($datOne['imgusu'])): ?>
+                <div class="mt-2">
+                    <small class="text-muted">Imagen actual:</small><br>
+                    <img src="<?= htmlspecialchars($datOne['imgusu']); ?>" alt="Foto usuario" style="max-width: 100px; max-height: 100px;" class="mt-1">
+                </div>
+            <?php endif; ?>
         </div>
 
         <div class="form-group col-md-6">
