@@ -1,5 +1,5 @@
 <?php
-echo "<pre>EMPRESA EN SESIÓN: " . ($_SESSION['idemp'] ?? 'no definida') . "</pre>";
+//echo "<pre>EMPRESA EN SESIÓN: " . ($_SESSION['idemp'] ?? 'no definida') . "</pre>";
 ?>
 
 
