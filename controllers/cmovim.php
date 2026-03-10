@@ -109,8 +109,9 @@ if($ope == "save"){
                 $maud->setIdemp($idemp_kardex);
                 $maud->setIdusu($idusu_session);
                 $maud->setTabla('movim');
-                $maud->setAccion(1); // Insertar
-                $maud->setIdreg($resultado);
+                $maud->setAccion(5); // Movimiento
+                // $resultado tiene el ID del movimiento u otra cosa; ojalá sea el ID
+                $maud->setIdreg($resultado === true ? 0 : $resultado);
                 $maud->setDatos_nue(json_encode($_POST));
                 $maud->setFecha(date('Y-m-d H:i:s'));
                 $maud->setIp($_SERVER['REMOTE_ADDR']);
@@ -126,12 +127,11 @@ if($ope == "save"){
                 $_SESSION['success_msg'] = "Movimiento actualizado exitosamente";
                 
                 // Registrar en auditoría
-                // Registrar en auditoría
                 $maud = new MAud();
                 $maud->setIdemp($idemp_kardex);
                 $maud->setIdusu($idusu_session);
                 $maud->setTabla('movim');
-                $maud->setAccion(2); // Actualizar
+                $maud->setAccion(5); // Movimiento
                 $maud->setIdreg($idmov);
                 $maud->setDatos_ant(json_encode($datAnterior));
                 $maud->setDatos_nue(json_encode($_POST));
@@ -156,12 +156,11 @@ if($ope == "eli" && $idmov){
         $_SESSION['success_msg'] = "Movimiento eliminado exitosamente";
         
         // Registrar en auditoría
-        // Registrar en auditoría
         $maud = new MAud();
         $maud->setIdemp($idemp_del);
         $maud->setIdusu($idusu_session);
         $maud->setTabla('movim');
-        $maud->setAccion(3); // Eliminar
+        $maud->setAccion(5); // Movimiento
         $maud->setIdreg($idmov);
         $maud->setDatos_ant(json_encode($datAnterior));
         $maud->setFecha(date('Y-m-d H:i:s'));
