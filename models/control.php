@@ -2,63 +2,21 @@
 // ===============================================
 // Archivo: models/control.php
 // Objetivo: Autenticación de usuario y creación de la sesión completa,
-//           incluyendo ID y Nombre de la Empresa con verificación reCAPTCHA V3.
+//           incluyendo ID y Nombre de la Empresa.
 // ===============================================
 
 require_once('conexion.php');
 require_once('../controllers/misfun.php'); 
-
-// ⬇️ DEFINICIÓN DE CLAVES Y SCORE
-// Clave Secreta obtenida de Google
-define('RECAPTCHA_SECRET_KEY', '6LerVXwsAAAAAO1IVu4NPPU6LkWuc0evHbgnqsbm'); 
-define('RECAPTCHA_SCORE_MINIMO', 0.1); // Puntuación mínima para entorno local
+require_once('../models/maud.php');
 
 $usu = isset($_POST['usu']) ? $_POST['usu'] : NULL; // Email o usuario
 $pas = isset($_POST['pas']) ? $_POST['pas'] : NULL;
-// Recibir el token de reCAPTCHA desde vinis.php
-$recaptcha_token = $_POST['recaptchaResponse'] ?? NULL;
 
-if ($usu && $pas && $recaptcha_token) {
-    
-    // ⬇️ LÓGICA DE VERIFICACIÓN RECAPTCHA
-    $url = 'https://www.google.com/recaptcha/api/siteverify';
-    $data = [
-        'secret'   => RECAPTCHA_SECRET_KEY,
-        'response' => $recaptcha_token,
-        'remoteip' => $_SERVER['REMOTE_ADDR']
-    ];
-
-    $options = [
-        'http' => [
-            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-            'method'  => 'POST',
-            'content' => http_build_query($data),
-        ],
-        // Parche SSL para evitar errores de conexión en XAMPP/Windows
-        'ssl' => [
-            'verify_peer' => false,
-            'verify_peer_name' => false,
-        ],
-    ];
-
-    $context  = stream_context_create($options);
-    $response = @file_get_contents($url, false, $context);
-    $response_keys = json_decode($response, true);
-    
-    // Verificación de reCAPTCHA:
-    // En local a veces el 'action' puede variar, así que validamos principalmente el éxito y el puntaje.
-    if (!$response_keys["success"] || $response_keys["score"] < RECAPTCHA_SCORE_MINIMO) {
-        // Falló la verificación de seguridad
-        echo '<script>window.location="../index.php?err=recaptcha_fail";</script>';
-        exit;
-    }
-    // ⬆️ FIN LÓGICA RECAPTCHA V3
-    
-    // Si pasa la verificación, llamamos a la función de autenticación
+if ($usu && $pas) {
+    // Llamamos directamente a la función de autenticación
     validar($usu, $pas); 
-    
 } else {
-    // Si falta usuario, contraseña o el token
+    // Si falta usuario o contraseña
     echo '<script>window.location="../index.php?err=campos_vacios";</script>'; 
 }
 
@@ -70,11 +28,29 @@ function validar($usu, $pas) {
 
         // 🎯 VALIDACIÓN DE ESTADO 🎯
         if ($usuario_data['usu_act'] == 0) {
+            $maud = new MAud();
+            $maud->registrarLogin(
+                $usuario_data['idemp'] ?? null, 
+                $usuario_data['idusu'], 
+                $usu, 
+                0, 
+                $_SERVER['REMOTE_ADDR'], 
+                $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido'
+            );
             echo '<script>window.location="../index.php?err=inactivo_usu";</script>';
             return;
         }
 
         if ($usuario_data['idper'] != 1 && $usuario_data['emp_act'] == 0) {
+            $maud = new MAud();
+            $maud->registrarLogin(
+                $usuario_data['idemp'] ?? null, 
+                $usuario_data['idusu'], 
+                $usu, 
+                0, 
+                $_SERVER['REMOTE_ADDR'], 
+                $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido'
+            );
             echo '<script>window.location="../index.php?err=inactivo_emp";</script>';
             return;
         }
@@ -91,9 +67,28 @@ function validar($usu, $pas) {
         $_SESSION['nomemp']     = $usuario_data['nomemp'] ?? NULL;
         $_SESSION['aut']        = "askjhd654-+"; 
 
+        $maud = new MAud();
+        $maud->registrarLogin(
+            $usuario_data['idemp'] ?? null, 
+            $usuario_data['idusu'], 
+            $usu, 
+            1, 
+            $_SERVER['REMOTE_ADDR'], 
+            $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido'
+        );
+
         echo '<script>window.location="../home.php";</script>';
     } else {
         // Error de credenciales
+        $maud = new MAud();
+        $maud->registrarLogin(
+            null, 
+            null, 
+            $usu, 
+            0, 
+            $_SERVER['REMOTE_ADDR'], 
+            $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido'
+        );
         echo '<script>window.location="../index.php?err=ok";</script>';
     }
 }
@@ -111,7 +106,7 @@ function verdat($usu, $con) {
              WHERE u.emausu = :emausu AND u.pasusu = :pasusu
              LIMIT 1";
 
-    $modelo = new Conexion();
+    $modelo = new conexion(); // FIX: Linux es case-sensitive, debe ser minúscula
     $conexion = $modelo->get_conexion();
     $result = $conexion->prepare($sql);
     $result->bindParam(':emausu', $usu);
