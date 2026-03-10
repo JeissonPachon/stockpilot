@@ -2,7 +2,7 @@
 -- Basado en el script original. Fuente: archivo proporcionado por el usuario. :contentReference[oaicite:1]{index=1}
 
 -- TABLAS --
-USE u414216290_stockpilot;
+USE stockpilot;
 
 CREATE TABLE usuario (
     idusu INT(10) PRIMARY KEY AUTO_INCREMENT,
@@ -172,17 +172,14 @@ CREATE TABLE solentrada (
 );
 
 CREATE TABLE solsalida (
-    idsol INT(10) PRIMARY KEY AUTO_INCREMENT,
+    idsal INT(10) PRIMARY KEY AUTO_INCREMENT,
+    fecsal DATETIME,
+    tpsal VARCHAR(50),
     idemp INT(10),
-    idubi INT(10),
-    fecsol DATE,
-    estsol VARCHAR(20),
-    totsol DECIMAL(12,2),
-    obssol TEXT,
     idusu INT(10),
-    idusu_apr INT(10),
-    fec_crea DATETIME,
-    fec_actu DATETIME
+    idubi INT(10),
+    refdoc VARCHAR(100),
+    estsal VARCHAR(20)
 );
 
 CREATE TABLE detentrada (
@@ -198,15 +195,13 @@ CREATE TABLE detentrada (
 );
 
 CREATE TABLE detsalida (
-    iddet INT(10) PRIMARY KEY AUTO_INCREMENT,
+    iddsal INT(10) PRIMARY KEY AUTO_INCREMENT,
     idemp INT(10),
-    idsol INT(10),
+    idsal INT(10),
     idprod INT(10),
-    cantdet INT,
-    vundet DECIMAL(10,2),
-    totdet DECIMAL(10,2) GENERATED ALWAYS AS (cantdet * vundet) STORED,
-    fec_crea DATETIME,
-    fec_actu DATETIME
+    cantdet DECIMAL(12,2),
+    vundet DECIMAL(12,2),
+    idlote INT(10)
 );
 
 CREATE TABLE dominio (
@@ -272,12 +267,15 @@ CREATE TABLE auditoria (
 
 CREATE TABLE lote (
     idlote INT(10) PRIMARY KEY AUTO_INCREMENT,
-    idprod INT(10),          -- Producto asociado
-    codlote VARCHAR(50),     -- Código o referencia del lote
-    fecven DATE,             -- Fecha de vencimiento (opcional)
-    cant INT,                -- Cantidad disponible en el lote
-    fec_crea DATETIME,
-    fec_actu DATETIME
+    idprod INT(10),
+    codlot VARCHAR(50),
+    fecing DATETIME,
+    fecven DATE,
+    cantini DECIMAL(12,2),
+    cantact DECIMAL(12,2),
+    costuni DECIMAL(12,4),
+    iddent INT(10),
+    idubi INT(10)
 );
 
 -- INDICES --
@@ -319,21 +317,23 @@ ALTER TABLE solentrada ADD KEY fk_solent_idusu (idusu);
 ALTER TABLE solentrada ADD KEY fk_solent_idusuapr (idusu_apr);
 
 ALTER TABLE solsalida ADD KEY fk_solsal_idemp (idemp);
-ALTER TABLE solsalida ADD KEY fk_solsal_idubi (idubi);
 ALTER TABLE solsalida ADD KEY fk_solsal_idusu (idusu);
-ALTER TABLE solsalida ADD KEY fk_solsal_idusuapr (idusu_apr);
+ALTER TABLE solsalida ADD KEY fk_solsal_idubi (idubi);
 
 ALTER TABLE detentrada ADD KEY fk_detent_idemp (idemp);
 ALTER TABLE detentrada ADD KEY fk_detent_idsol (idsol);
 ALTER TABLE detentrada ADD KEY fk_detent_idprod (idprod);
 
 ALTER TABLE detsalida ADD KEY fk_detsal_idemp (idemp);
-ALTER TABLE detsalida ADD KEY fk_detsal_idsol (idsol);
+ALTER TABLE detsalida ADD KEY fk_detsal_idsal (idsal);
 ALTER TABLE detsalida ADD KEY fk_detsal_idprod (idprod);
+ALTER TABLE detsalida ADD KEY fk_detsal_idlote (idlote);
 
 ALTER TABLE valor ADD KEY fk_val_iddom (iddom);
 
 ALTER TABLE lote ADD KEY fk_lote_idprod (idprod);
+ALTER TABLE lote ADD KEY fk_lote_idubi (idubi);
+ALTER TABLE lote ADD KEY fk_lote_iddent (iddent);
 
 -- RELACIONES --
 
@@ -378,9 +378,8 @@ ALTER TABLE solentrada
 
 ALTER TABLE solsalida
   ADD CONSTRAINT fk_solsal_emp FOREIGN KEY (idemp) REFERENCES empresa(idemp),
-  ADD CONSTRAINT fk_solsal_ubi FOREIGN KEY (idubi) REFERENCES ubicacion(idubi),
   ADD CONSTRAINT fk_solsal_usu FOREIGN KEY (idusu) REFERENCES usuario(idusu),
-  ADD CONSTRAINT fk_solsal_usuapr FOREIGN KEY (idusu_apr) REFERENCES usuario(idusu);
+  ADD CONSTRAINT fk_solsal_ubi FOREIGN KEY (idubi) REFERENCES ubicacion(idubi);
 
 ALTER TABLE detentrada
   ADD CONSTRAINT fk_detent_emp FOREIGN KEY (idemp) REFERENCES empresa(idemp),
@@ -389,8 +388,9 @@ ALTER TABLE detentrada
 
 ALTER TABLE detsalida
   ADD CONSTRAINT fk_detsal_emp FOREIGN KEY (idemp) REFERENCES empresa(idemp),
-  ADD CONSTRAINT fk_detsal_ids FOREIGN KEY (idsol) REFERENCES solsalida(idsol) ON DELETE CASCADE,
-  ADD CONSTRAINT fk_detsal_prod FOREIGN KEY (idprod) REFERENCES producto(idprod);
+  ADD CONSTRAINT fk_detsal_ids FOREIGN KEY (idsal) REFERENCES solsalida(idsal) ON DELETE CASCADE,
+  ADD CONSTRAINT fk_detsal_prod FOREIGN KEY (idprod) REFERENCES producto(idprod),
+  ADD CONSTRAINT fk_detsal_lote FOREIGN KEY (idlote) REFERENCES lote(idlote);
 
 ALTER TABLE valor ADD CONSTRAINT fkvldm FOREIGN KEY (iddom) REFERENCES dominio(iddom);
 ALTER TABLE pagina ADD CONSTRAINT fkpgmo FOREIGN KEY (idmod) REFERENCES modulo(idmod);
@@ -401,6 +401,7 @@ ALTER TABLE auditoria ADD CONSTRAINT fkauem FOREIGN KEY (idemp) REFERENCES empre
 ALTER TABLE auditoria ADD CONSTRAINT fkauus FOREIGN KEY (idusu) REFERENCES usuario(idusu);
 
 ALTER TABLE lote ADD CONSTRAINT fk_lote_prod FOREIGN KEY (idprod) REFERENCES producto(idprod);
+ALTER TABLE lote ADD CONSTRAINT fk_lote_ubi FOREIGN KEY (idubi) REFERENCES ubicacion(idubi);
 
 
 

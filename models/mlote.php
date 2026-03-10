@@ -1,6 +1,7 @@
 <?php
+require_once __DIR__ . '/conexion.php';
+
 class Mlote {
-    // Atributos
     private $idlote;
     private $idprod;
     private $codlot;
@@ -8,156 +9,189 @@ class Mlote {
     private $fecven;
     private $cantini;
     private $cantact;
-    private $cstuni;
+    private $costuni;
+    private $iddent;
+    private $idubi;   // ← Ubicación del lote
 
     // Getters
-    function getIdlote() { return $this->idlote;   }
-    function getIdprod   () { return $this->idprod;   }
-    function getCodlot   () { return $this->codlot;   }
-    function getFecing   () { return $this->fecing;   }
-    function getFecven   () { return $this->fecven;   }
-    function getCantini  () { return $this->cantini;  }
-    function getCantact  () { return $this->cantact;  }
-    function getCstuni   () { return $this->cstuni;   }
+    function getIdlote()  { return $this->idlote;  }
+    function getIdprod()  { return $this->idprod;  }
+    function getCodlot()  { return $this->codlot;  }
+    function getFecing()  { return $this->fecing;  }
+    function getFecven()  { return $this->fecven;  }
+    function getCantini() { return $this->cantini; }
+    function getCantact() { return $this->cantact; }
+    function getCostuni() { return $this->costuni; }
+    function getIddent()  { return $this->iddent;  }
+    function getIdubi()   { return $this->idubi;   }
 
     // Setters
-    function setIdlote  ($v) { $this->idlote  = $v; }
-    function setIdprod  ($v) { $this->idprod  = $v; }
-    function setCodlot ($v) { $this->codlot = $v; }
+    function setIdlote($v)  { $this->idlote  = $v; }
+    function setIdprod($v)  { $this->idprod  = $v; }
+    function setCodlot($v)  { $this->codlot  = $v; }
+    function setFecing($v)  { $this->fecing  = $v; }
+    function setFecven($v)  { $this->fecven  = $v; }
+    function setCantini($v) { $this->cantini = $v; }
+    function setCantact($v) { $this->cantact = $v; }
+    function setCostuni($v) { $this->costuni = $v; }
+    function setIddent($v)  { $this->iddent  = $v; }
+    function setIdubi($v)   { $this->idubi   = $v; }
 
-    function setFecing  ($v) { $this->fecing  = $v; }
-    function setFecven  ($v) { $this->fecven  = $v; }
-    function setCantini ($v) { $this->cantini = $v; }
-    function setCantact ($v) { $this->cantact = $v; }
-    function setCstuni  ($v) { $this->cstuni  = $v; }
-
-    // ==================== MÉTODOS ====================
-
-    public function getAll() {
+    // ── OBTENER TODOS ─────────────────────────────────────────────
+    public function getAll($idemp = null, $idper = null) {
         try {
-            $sql = "SELECT l.*, p.nomprod 
-                    FROM lote l 
-                    LEFT JOIN producto p ON l.idprod = p.idprod 
-                    ORDER BY l.idlote DESC";
-            $modelo    = new conexion();
-            $conexion  = $modelo->get_conexion();
-            $res       = $conexion->prepare($sql);
-            $res->execute();
-            return $res->fetchAll(PDO::FETCH_ASSOC);
+            $sql = "SELECT l.*,
+                           p.nomprod, p.codprod, p.idemp AS prod_idemp,
+                           u.nomubi, u.codubi,
+                           CASE
+                               WHEN l.fecven IS NULL                                          THEN 'Sin vencimiento'
+                               WHEN l.fecven < CURDATE()                                      THEN 'Vencido'
+                               WHEN l.fecven < DATE_ADD(CURDATE(), INTERVAL 30 DAY)           THEN 'Por vencer'
+                               ELSE 'Vigente'
+                           END AS estado
+                    FROM lote l
+                    INNER JOIN producto  p ON l.idprod = p.idprod
+                    LEFT  JOIN ubicacion u ON l.idubi  = u.idubi";
+
+            if ($idper != 1 && $idemp !== null) {
+                $sql .= " WHERE p.idemp = :idemp";
+            }
+
+            $sql .= " ORDER BY l.idlote DESC";
+
+            $cn  = (new conexion())->get_conexion();
+            $stm = $cn->prepare($sql);
+            if ($idper != 1 && $idemp !== null) {
+                $stm->bindParam(':idemp', $idemp);
+            }
+            $stm->execute();
+            return $stm->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            men($e->getMessage());
+            error_log("Mlote::getAll() error: " . $e->getMessage());
+            return [];
         }
     }
 
+    // ── OBTENER UNO ───────────────────────────────────────────────
     public function getOne() {
         try {
-            $sql = "SELECT l.*, p.nomprod 
-                    FROM lote l 
-                    LEFT JOIN producto p ON l.idprod = p.idprod 
+            $sql = "SELECT l.*, p.nomprod, u.nomubi
+                    FROM lote l
+                    INNER JOIN producto  p ON l.idprod = p.idprod
+                    LEFT  JOIN ubicacion u ON l.idubi  = u.idubi
                     WHERE l.idlote = :idlote";
-            $modelo   = new conexion();
-            $conexion = $modelo->get_conexion();
-            $res      = $conexion->prepare($sql);
-            $res->bindParam(':idlote', $this->idlote);
-            $res->execute();
-            $resultado = $res->fetch(PDO::FETCH_ASSOC);
-            return $resultado ?: []; // devuelve array vacío si no existe
+            $cn  = (new conexion())->get_conexion();
+            $stm = $cn->prepare($sql);
+            $stm->bindParam(':idlote', $this->idlote);
+            $stm->execute();
+            return $stm->fetch(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            men($e->getMessage());
+            error_log("Mlote::getOne() error: " . $e->getMessage());
+            return null;
         }
     }
 
+    // ── GUARDAR ───────────────────────────────────────────────────
     public function save() {
         try {
-            $sql = "INSERT INTO lote 
-                    (idprod, codlot, fecing, fecven, cantini, cantact, cstuni) 
-                    VALUES 
-                    (:idprod, :codlot, :fecing, :fecven, :cantini, :cantact, :cstuni)";
-            $modelo   = new conexion();
-            $conexion = $modelo->get_conexion();
-            $res      = $conexion->prepare($sql);
-
-            $res->bindParam(':idprod',   $this->idprod);
-            $res->bindParam(':codlot',  $this->codlot);
-            $res->bindParam(':fecing',   $this->fecing);
-            $res->bindParam(':fecven',   $this->fecven);
-            $res->bindParam(':cantini',  $this->cantini);
-            $res->bindParam(':cantact',  $this->cantact);
-            $res->bindParam(':cstuni',   $this->cstuni);
-
-            $res->execute();
-            men("Guardado correctamente");
-            return true;
+            $sql = "INSERT INTO lote (idprod, codlot, fecing, fecven, cantini, cantact, costuni, iddent, idubi)
+                    VALUES (:idprod, :codlot, :fecing, :fecven, :cantini, :cantact, :costuni, :iddent, :idubi)";
+            $cn  = (new conexion())->get_conexion();
+            $stm = $cn->prepare($sql);
+            $stm->bindParam(':idprod',  $this->idprod);
+            $stm->bindParam(':codlot',  $this->codlot);
+            $stm->bindParam(':fecing',  $this->fecing);
+            $stm->bindParam(':fecven',  $this->fecven);
+            $stm->bindParam(':cantini', $this->cantini);
+            $stm->bindParam(':cantact', $this->cantact);
+            $stm->bindParam(':costuni', $this->costuni);
+            $stm->bindParam(':iddent',  $this->iddent);
+            $stm->bindParam(':idubi',   $this->idubi);
+            $stm->execute();
+            return $cn->lastInsertId();
         } catch (Exception $e) {
-            men($e->getMessage());
+            error_log("Mlote::save() error: " . $e->getMessage());
             return false;
         }
     }
 
+    // ── EDITAR ────────────────────────────────────────────────────
     public function edit() {
         try {
-            $sql = "UPDATE lote SET 
-                        idprod   = :idprod,
+            $sql = "UPDATE lote SET
+                        idprod  = :idprod,
                         codlot  = :codlot,
-                        fecing   = :fecing,
-                        fecven   = :fecven,
-                        cantini  = :cantini,
-                        cantact  = :cantact,
-                        cstuni   = :cstuni
+                        fecing  = :fecing,
+                        fecven  = :fecven,
+                        cantini = :cantini,
+                        cantact = :cantact,
+                        costuni = :costuni,
+                        idubi   = :idubi
                     WHERE idlote = :idlote";
-            $modelo   = new conexion();
-            $conexion = $modelo->get_conexion();
-            $res      = $conexion->prepare($sql);
-
-            $res->bindParam(':idlote',  $this->idlote);
-            $res->bindParam(':idprod',  $this->idprod);
-            $res->bindParam(':codlot', $this->codlot);
-            $res->bindParam(':fecing',  $this->fecing);
-            $res->bindParam(':fecven',  $this->fecven);
-            $res->bindParam(':cantini', $this->cantini);
-            $res->bindParam(':cantact', $this->cantact);
-            $res->bindParam(':cstuni',  $this->cstuni);
-
-            $res->execute();
-            men("Actualizado correctamente");
-            return true;
+            $cn  = (new conexion())->get_conexion();
+            $stm = $cn->prepare($sql);
+            $stm->bindParam(':idlote',  $this->idlote);
+            $stm->bindParam(':idprod',  $this->idprod);
+            $stm->bindParam(':codlot',  $this->codlot);
+            $stm->bindParam(':fecing',  $this->fecing);
+            $stm->bindParam(':fecven',  $this->fecven);
+            $stm->bindParam(':cantini', $this->cantini);
+            $stm->bindParam(':cantact', $this->cantact);
+            $stm->bindParam(':costuni', $this->costuni);
+            $stm->bindParam(':idubi',   $this->idubi);
+            return $stm->execute();
         } catch (Exception $e) {
-            men($e->getMessage());
+            error_log("Mlote::edit() error: " . $e->getMessage());
             return false;
         }
     }
 
+    // ── ELIMINAR ──────────────────────────────────────────────────
     public function del() {
         try {
             $sql = "DELETE FROM lote WHERE idlote = :idlote";
-            $modelo   = new conexion();
-            $conexion = $modelo->get_conexion();
-            $res      = $conexion->prepare($sql);
-            $res->bindParam(':idlote', $this->idlote);
-            $res->execute();
-            men("Eliminado correctamente");
+            $cn  = (new conexion())->get_conexion();
+            $stm = $cn->prepare($sql);
+            $stm->bindParam(':idlote', $this->idlote);
+            return $stm->execute();
         } catch (Exception $e) {
-            men($e->getMessage());
+            error_log("Mlote::del() error: " . $e->getMessage());
+            return false;
         }
     }
 
-    // Opcional: contar cuántos movimientos tiene este lote (para no borrarlo si tiene detalle)
-    public function tieneMovimientos() {
+    // ── ACTUALIZAR STOCK ATÓMICAMENTE (Entradas/Salidas) ─────────
+    public function updateStock($idlote, $cantidad) {
         try {
-            $sql = "SELECT COUNT(*) AS total FROM detsalida WHERE idlote = :idlote 
-                    UNION ALL 
-                    SELECT COUNT(*) FROM detcompra WHERE idlote = :idlote";
-            $modelo   = new conexion();
-            $conexion = $modelo->get_conexion();
-            $res      = $conexion->prepare($sql);
-            $res->bindParam(':idlote', $this->idlote);
-            $res->execute();
-            $resultados = $res->fetchAll(PDO::FETCH_COLUMN);
-            $total = array_sum($resultados);
-            return $total > 0;
+            $sql = "UPDATE lote SET cantact = cantact + :cantidad WHERE idlote = :idlote";
+            $cn  = (new conexion())->get_conexion();
+            $stm = $cn->prepare($sql);
+            $stm->bindParam(':idlote',   $idlote);
+            $stm->bindParam(':cantidad', $cantidad);
+            return $stm->execute();
         } catch (Exception $e) {
-            men($e->getMessage());
-            return true; // por seguridad no borrar si falla
+            error_log("Mlote::updateStock() error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // ── LISTADO DE UBICACIONES (para el select del modal) ────────
+    public function getAllUbi($idemp = null, $idper = null) {
+        try {
+            $sql = "SELECT idubi, nomubi, codubi FROM ubicacion";
+            if ($idper != 1 && $idemp) {
+                $sql .= " WHERE idemp = :idemp";
+            }
+            $sql .= " ORDER BY nomubi ASC";
+            $cn  = (new conexion())->get_conexion();
+            $stm = $cn->prepare($sql);
+            if ($idper != 1 && $idemp) {
+                $stm->bindParam(':idemp', $idemp);
+            }
+            $stm->execute();
+            return $stm->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return [];
         }
     }
 }

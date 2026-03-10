@@ -1,69 +1,69 @@
 <?php
-include("models/mlote.php"); // Asegurar que mlote existe
-require_once("models/mprod.php");  // Corregido: mprod.php en lugar de mproducto.php
+require_once __DIR__ . '/../models/mlote.php';
+require_once __DIR__ . '/../models/mprod.php';
+require_once __DIR__ . '/../models/conexion.php';
 
-$mlote     = new Mlote();
-$mprod = new Mprod(); // Corregido: Clase Mprod
+$mlote = new Mlote();
+$mprod = new Mprod();
 
-$idlote  = isset($_REQUEST['idlote'])  ? $_REQUEST['idlote']  : NULL;
-$idprod  = isset($_POST['idprod'])    ? $_POST['idprod']     : NULL;
-$codlot  = isset($_POST['codlot'])     ? $_POST['codlot']     : NULL;
-$fecing  = isset($_POST['fecing'])     ? $_POST['fecing']     : NULL;
-$fecven  = isset($_POST['fecven'])     ? $_POST['fecven']     : NULL;
-$cantini = isset($_POST['cantini'])    ? $_POST['cantini']    : NULL;
-$cantact = isset($_POST['cantact'])    ? $_POST['cantact']    : NULL;
-$cstuni  = isset($_POST['cstuni'])     ? $_POST['cstuni']     : NULL;
-$ope     = isset($_REQUEST['ope'])     ? $_REQUEST['ope']     : NULL;
+$idper = $_SESSION['idper'] ?? NULL;
+$idemp = $_SESSION['idemp'] ?? NULL;
 
+$idlote  = isset($_REQUEST['idlote'])  ? (int)$_REQUEST['idlote']  : NULL;
+$idprod  = isset($_POST['idprod'])     ? (int)$_POST['idprod']     : NULL;
+$idubi   = isset($_POST['idubi'])      ? (int)$_POST['idubi']      : NULL;
+$codlot  = isset($_POST['codlot'])     ? trim($_POST['codlot'])    : NULL;
+$fecing  = isset($_POST['fecing'])     ? $_POST['fecing']           : date('Y-m-d H:i:s');
+$fecven  = isset($_POST['fecven'])     ? $_POST['fecven']           : NULL;
+$cantini = isset($_POST['cantini'])    ? $_POST['cantini']          : NULL;
+$cantact = isset($_POST['cantact'])    ? $_POST['cantact']          : NULL;
+$costuni = isset($_POST['costuni'])    ? $_POST['costuni']          : 0;
+$ope     = isset($_REQUEST['ope'])     ? $_REQUEST['ope']           : NULL;
 $dtOne   = NULL;
-
-// Cargar productos para el select del modal
-$prod = $mprod->getAll();
 
 $mlote->setIdlote($idlote);
 
-// ====================================================================
-// GUARDAR O ACTUALIZAR
-// ====================================================================
-if ($ope == "SaVe" && $idlote) {
-    // Es edición
+// ── GUARDAR / EDITAR ──────────────────────────────────────────
+if ($ope == "save") {
     $mlote->setIdprod($idprod);
     $mlote->setCodlot($codlot);
     $mlote->setFecing($fecing);
-    $mlote->setFecven($fecven);
+    $mlote->setFecven(!empty($fecven) ? $fecven : null);
     $mlote->setCantini($cantini);
-    $mlote->setCantact($cantact);
-    $mlote->setCstuni($cstuni ?? 0);
-    $mlote->edit();
+    $mlote->setCantact($cantact ?? $cantini);
+    $mlote->setCostuni($costuni);
+    $mlote->setIdubi(!empty($idubi) ? $idubi : null);
+    $mlote->setIddent(0);  // Sin entrada asociada (manual)
 
-} elseif ($ope == "SaVe" && !$idlote) {
-    // Es nuevo
-    $mlote->setIdprod($idprod);
-    $mlote->setCodlot($codlot);
-    $mlote->setFecing($fecing);
-    $mlote->setFecven($fecven);
-    $mlote->setCantini($cantini);
-    $mlote->setCantact($cantini);  // al crear, cantact = cantini
-    $mlote->setCstuni($cstuni ?? 0);
-    $mlote->save();
+    if ($idlote) {
+        $ok = $mlote->edit();
+        $_SESSION['mensaje']      = $ok ? "Lote actualizado correctamente." : "Error al actualizar el lote.";
+        $_SESSION['tipo_mensaje'] = $ok ? "success" : "danger";
+    } else {
+        $ok = $mlote->save();
+        $_SESSION['mensaje']      = $ok ? "Lote registrado correctamente." : "Error al registrar el lote.";
+        $_SESSION['tipo_mensaje'] = $ok ? "success" : "danger";
+    }
+    echo "<script>window.location.href='home.php?pg=".($pg ?? 1008)."';</script>";
+    exit;
 }
 
-// ====================================================================
-// ELIMINAR
-// ====================================================================
-if ($ope == "eLi" && $idlote) {
-    $mlote->del();
+// ── ELIMINAR ──────────────────────────────────────────────────
+if ($ope == "eli" && $idlote) {
+    $ok = $mlote->del();
+    $_SESSION['mensaje']      = $ok ? "Lote eliminado correctamente." : "Error al eliminar el lote.";
+    $_SESSION['tipo_mensaje'] = $ok ? "success" : "danger";
+    echo "<script>window.location.href='home.php?pg=".($pg ?? 1008)."';</script>";
+    exit;
 }
 
-// ====================================================================
-// EDITAR (cargar datos en el modal)
-// ====================================================================
-if ($ope == "eDi" && $idlote) {
+// ── EDITAR (cargar datos) ──────────────────────────────────────
+if ($ope == "edi" && $idlote) {
     $dtOne = $mlote->getOne();
 }
 
-// ====================================================================
-// LISTA GENERAL
-// ====================================================================
-$dtAll = $mlote->getAll();
+// ── DATOS PARA LA VISTA ───────────────────────────────────────
+$dtAll     = $mlote->getAll($idper == 1 ? null : $idemp, $idper);
+$productos = $mprod->getAll($idper == 1 ? null : $idemp, $idper);
+$ubicaciones = $mlote->getAllUbi($idemp, $idper);
 ?>
