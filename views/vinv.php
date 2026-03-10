@@ -13,12 +13,12 @@ $puedeEliminar = ($idper == 1 || $idper == 2);
         <i class="fa-solid fa-box"></i> Inventario
     </h2>
 
-    <!-- ✅ BOTÓN GENERAR PDF -->
+    <!-- ✅ BOTÓN GENERAR PDF 
     <div class="mb-3 text-end">
         <a href="controllers/generar_pdf_inventario.php" target="_blank" class="btn btn-danger">
             <i class="fa-solid fa-file-pdf"></i> Generar PDF
         </a>
-    </div>
+    </div> -->
 
     <!-- Formulario de Inventario -->
     <?php if($puedeCrear || isset($datOne)){ ?>
@@ -206,3 +206,4 @@ function confirmarEliminacion(url) {
     });
 }
 </script>
+
