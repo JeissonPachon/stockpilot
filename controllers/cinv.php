@@ -63,7 +63,7 @@ if ($ope == "eli" && $idinv) {
 
 if($ope =="edi" && $idinv) {
     $tmp = $minv->getOne();
-    $datOne = $tmp ? $tmp[0] : null;
+    $datOne = $tmp ? $tmp : null;
 }
 
 
