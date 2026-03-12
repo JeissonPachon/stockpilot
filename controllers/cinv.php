@@ -56,6 +56,14 @@ if($ope == "save"){
 
 if ($ope == "eli" && $idinv) {
     $minv->setIdinv($idinv);
+    $lotesCount = $minv->countLotesByInv($idinv);
+    if ($lotesCount > 0) {
+        $_SESSION['mensaje'] = "No se puede eliminar: hay lotes asociados a este producto y ubicacion.";
+        $_SESSION['tipo_mensaje'] = "warning";
+        echo "<script>window.location.href = 'home.php?pg=$pg';</script>";
+        exit;
+    }
+
     $minv->del();
     echo "<script>window.location.href = 'home.php?pg=$pg&msg=deleted';</script>";
     exit;
@@ -67,7 +75,8 @@ if($ope =="edi" && $idinv) {
 }
 
 
-$datAll = $minv->getAll();
+$datAll = $minv->getStockResumen();
 $datProd = $minv->getAllProd();  // ✅ Productos de la empresa
 $datUbi = $minv->getAllUbi();    // ✅ Ubicaciones de la empresa
+$lotesIndexados = $minv->getLotesPorInventario(); // ✅ Lotes agrupados por producto+ubicación
 ?>

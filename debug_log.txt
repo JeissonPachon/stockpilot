@@ -27,3 +27,10 @@ Request: {"pg":"1010"}
 cmovim.php loaded at 2026-03-01 19:52:30
 Request: {"pg":"1010"}
 Session IDEMP: '1'
+cmovim.php loaded at 2026-03-11 19:50:42
+Request: {"pg":"1010"}
+cmovim.php loaded at 2026-03-11 19:50:42
+Request: {"pg":"1010"}
+Session IDEMP: 1
+2026-03-12 23:15:34 | Detalle entrada | idsol: 247 | idprod: 8 | cantdet: 10 | vundet: 1200 | idemp: 1
+2026-03-12 23:33:27 | Detalle entrada | idsol: 249 | idprod: 8 | cantdet: 10 | vundet: 1200 | idemp: 1

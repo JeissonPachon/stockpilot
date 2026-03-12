@@ -23,13 +23,14 @@ require_once('controllers/cper.php');
             <input type="hidden" name="idper" value="<?php if($datOne && isset($datOne[0]['idper'])) echo $datOne[0]['idper']; ?>">
             <input type="hidden" name="ope" value="save">
             <br>
-            <input type="submit" class="form-control btn btn-dark" value="Guardar">
+            <input type="submit" class="form-control btn btn-primary" value="Guardar">
         </div>
     </div>
 </form>
 
 <hr>
 
+<div class="table-responsive">
 <table id="table" class="table table-striped">
     <thead>
         <tr>
@@ -74,11 +75,11 @@ require_once('controllers/cper.php');
             </td>
             <td><?=$dt['act'] == 1 ? 'Sí' : 'No';?></td>
             <td>
-                <a href="index.php?pg=<?=$pg;?>&idper=<?=$dt['idper'];?>&ope=edi" title="Editar">
-                    <i class="fa-solid fa-pen-to-square fa-2x"></i>
+                <a href="index.php?pg=<?=$pg;?>&idper=<?=$dt['idper'];?>&ope=edi" class="btn btn-sm btn-outline-warning me-1" title="Editar" aria-label="Editar perfil">
+                    <i class="fa-solid fa-pen-to-square"></i>
                 </a>
-                <a href="index.php?pg=<?=$pg;?>&idper=<?=$dt['idper'];?>&ope=eli" title="Eliminar" onclick="return eliminar();">
-                    <i class="fa-solid fa-trash-can fa-2x"></i>
+                <a href="index.php?pg=<?=$pg;?>&idper=<?=$dt['idper'];?>&ope=eli" class="btn btn-sm btn-outline-danger" title="Eliminar" aria-label="Eliminar perfil" onclick="return eliminar();">
+                    <i class="fa-solid fa-trash-can"></i>
                 </a>
             </td>
         </tr>
@@ -97,6 +98,7 @@ require_once('controllers/cper.php');
         </tr>
     </thead>
 </table>
+</div>
 
 <script>
 function cambiarPermiso(idper, permiso, valor) {

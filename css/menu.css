@@ -5,14 +5,14 @@
 :root {
     /* Colores base adaptados a tu azul #3b5998 */
     --primary-color: 227, 43%, 41%; /* Base del azul #3b5998 */
-    --primary-light: 227, 43%, 55%; /* Azul más claro para hover */
+    --primary-light: 227, 43%, 55%; /* Azul mas claro para hover */
     
-    --menu-bg: 228, 17%, 18%; /* Fondo muy oscuro para el menú (casi negro azulado) */
-    --menu-bg-dark: 228, 15%, 15%;
-    --menu-bg-light: 228, 17%, 24%;
+    --menu-bg: 216, 32%, 17%; /* Fondo base alineado al slate del sistema */
+    --menu-bg-dark: 218, 35%, 14%;
+    --menu-bg-light: 216, 30%, 24%;
 
     --white: 0, 0%, 100%;
-    --gray-text: 0, 0%, 50%;
+    --gray-text: 214, 20%, 78%;
     
     /* Tamaños */
     --navbar-width-collapsed: 2.5em; /* 80px */
@@ -196,22 +196,27 @@
     cursor: pointer;
 }
 .navbar-item-inner {
-    padding: 1em 0;
+    padding: 0.78em 0.45em;
     width: 100%;
     position: relative;
     color: hsl(var(--gray-text));
-    border-radius: .25em;
+    border-radius: 0.55em;
+    border: 1px solid transparent;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.62rem;
     transition: all .2s cubic-bezier(var(--transition-main), 1);
-    font-size: var(--paragraph);
+    font-size: 0.86rem;
 }
 
 /* Efecto hover/activo */
 a.navbar-item-inner:hover, 
 .navbar-item.active .navbar-item-inner {
     color: hsl(var(--white));
-    background: hsl(var(--menu-bg-light));
-    box-shadow: 0 5px 10px -5px hsla(var(--menu-bg), .25); 
+    background: linear-gradient(90deg, hsla(var(--primary-color), 0.28), hsla(var(--primary-color), 0.1));
+    border-color: hsla(var(--primary-color), 0.45);
+    box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.45);
 }
 
 /* Iconos de los ítems (Colapsado: Solo se ve esto) */
@@ -223,10 +228,19 @@ a.navbar-item-inner:hover,
     justify-content: center;
     align-items: center;
     /* Asegura el padding correcto para el ícono */
-    padding: 0 0.5em; 
+    padding: 0 0.5em;
+    flex-shrink: 0;
+    transition: width .25s ease, padding .25s ease;
 }
 .navbar-item-inner-icon-wrapper i {
-    font-size: calc(var(--navbar-buttons) - 1rem); 
+    font-size: calc(var(--navbar-buttons) - 1.02rem);
+}
+
+/* En expandido, reducimos el bloque de icono para acercarlo al texto */
+#navbar:hover .navbar-item-inner-icon-wrapper {
+    width: 1.2rem;
+    justify-content: flex-start;
+    padding-left: 0.12rem;
 }
 
 /* Texto de los ítems (Expandido: Aparece esto) */
@@ -235,19 +249,25 @@ a.navbar-item-inner:hover,
     width: 0;
     text-overflow: ellipsis;
     white-space: nowrap;
+    line-height: 1.2;
+    font-weight: 500;
     transition: all .35s cubic-bezier(var(--transition-main), 1);
     overflow: hidden;
     opacity: 0; /* Oculto inicialmente */
 }
 /* Cuando el menú se expande, muestra el texto */
 #navbar:hover .link-text {
-    width: calc(100% - var(--navbar-width-collapsed) + 8px);
+    width: calc(100% - 2.2rem);
     opacity: 1;
 }
 
 /* Estilo específico para el ítem de la página actual o principal */
 .navbar-item.active .navbar-item-inner .navbar-item-inner-icon-wrapper i {
     color: hsl(var(--primary-light)); /* Icono activo en tu azul */
+}
+
+.navbar-item.active .link-text {
+    color: hsl(var(--white));
 }
 
 
@@ -317,21 +337,92 @@ a.navbar-item-inner:hover,
 
 @media only screen and (max-width: 756px) {
     :root {
-        --navbar-width-collapsed: 4em; /* 64px */
-        --navbar-width-expanded: 12em; /* 192px */
+        --navbar-width-collapsed: 4em;
+        --navbar-width-expanded: 12em;
+    }
+
+    #navbar {
+        width: var(--navbar-width-collapsed);
+    }
+
+    #navbar:hover {
+        width: var(--navbar-width-collapsed);
+    }
+
+    #navbar.mobile-open {
+        width: var(--navbar-width-expanded);
+        box-shadow: 12px 0 24px rgba(15, 23, 42, 0.35);
     }
     
-    /* Reajustar el desplazamiento del contenido para móviles */
     #main-content-wrapper {
         margin-left: var(--navbar-width-collapsed);
     }
+
     #navbar:hover ~ #main-content-wrapper {
-        margin-left: var(--navbar-width-expanded);
+        margin-left: var(--navbar-width-collapsed);
     }
 
-    /* Ocultar el texto del link incluso si la barra hace hover, si es demasiado estrecho */
+    #navbar.mobile-open ~ #main-content-wrapper {
+        margin-left: var(--navbar-width-collapsed);
+    }
+
     #navbar .link-text {
+        width: 0 !important;
         opacity: 0;
+    }
+
+    #navbar.mobile-open .link-text {
+        width: calc(100% - 2.2rem) !important;
+        opacity: 1;
+    }
+
+    #navbar:not(:hover) .navbar-top-items {
+        display: block;
+    }
+
+    .navbar-item-inner {
+        justify-content: center;
+        padding: 0.75em 0.25em;
+    }
+
+    #navbar.mobile-open .navbar-item-inner {
+        justify-content: flex-start;
+        padding: 0.78em 0.45em;
+    }
+
+    .navbar-item-inner-icon-wrapper {
+        width: 100%;
+        justify-content: center;
+        padding: 0;
+    }
+
+    #navbar.mobile-open .navbar-item-inner-icon-wrapper {
+        width: 1.2rem;
+        justify-content: flex-start;
+        padding-left: 0.12rem;
+    }
+
+    .navbar-search {
+        display: none;
+    }
+
+    #navbar.mobile-open .navbar-search {
+        display: block;
+    }
+
+    #navbar .navbar-logo {
+        cursor: pointer;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    :root {
+        --navbar-width-collapsed: 3.7em;
+        --navbar-width-expanded: 11em;
+    }
+
+    #main-content-wrapper {
+        margin-left: var(--navbar-width-collapsed);
     }
 }
 
@@ -342,3 +433,4 @@ a.navbar-item-inner:hover,
     justify-content: center !important; 
     align-items: center !important; 
 } */
+

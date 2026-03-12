@@ -239,5 +239,41 @@ class Mmov {
             return false;
         }
     }
+
+    /**
+     * Obtener movimientos por periodo (kardex)
+     */
+    public function getByKardex($idkar, $idemp = null){
+        try {
+            $sql = "SELECT m.idmov, m.idkar, m.idprod, m.idubi, m.fecmov, m.tipmov,
+                           m.cantmov, m.valmov, m.costprom, m.docref, m.obs, m.idusu,
+                           m.fec_crea, m.fec_actu,
+                           k.idemp, e.nomemp, p.nomprod, u.nomubi, us.nomusu, us.apeusu
+                    FROM movim m
+                    INNER JOIN kardex k ON m.idkar = k.idkar
+                    LEFT JOIN empresa e ON k.idemp = e.idemp
+                    LEFT JOIN producto p ON m.idprod = p.idprod
+                    LEFT JOIN ubicacion u ON m.idubi = u.idubi
+                    LEFT JOIN usuario us ON m.idusu = us.idusu
+                    WHERE m.idkar = :idkar";
+            if ($idemp) {
+                $sql .= " AND k.idemp = :idemp";
+            }
+            $sql .= " ORDER BY m.fecmov DESC, m.idmov DESC";
+
+            $modelo = new Conexion();
+            $conexion = $modelo->get_conexion();
+            $result = $conexion->prepare($sql);
+            $result->bindParam(':idkar', $idkar);
+            if ($idemp) {
+                $result->bindParam(':idemp', $idemp);
+            }
+            $result->execute();
+            return $result->fetchAll(PDO::FETCH_ASSOC);
+        } catch(Exception $e){
+            error_log("Error en Mmov::getByKardex: ".$e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

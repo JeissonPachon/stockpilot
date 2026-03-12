@@ -131,7 +131,7 @@
                                         <?php echo number_format($l['cantact'], 2); ?>
                                     </span>
                                 </td>
-                                <td class="text-center">$<?php echo number_format($l['costuni'], 4); ?></td>
+                                <td class="text-center">$<?php echo number_format($l['costuni']); ?></td>
                                 <td class="text-center">
                                     <span class="badge bg-<?php echo $badgeColor; ?>">
                                         <?php echo $l['estado']; ?>

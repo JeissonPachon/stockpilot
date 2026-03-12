@@ -59,6 +59,7 @@ $puedeEliminar = ($idper == 1 || $idper == 2); // SuperAdmin o Admin
             <i class="fa-solid fa-list me-1"></i> Listado de Categorías
         </div>
         <div class="card-body">
+            <div class="table-responsive">
             <table id="table" class="table table-striped align-middle">
                 <thead class="table-light">
                     <tr>
@@ -126,6 +127,7 @@ $puedeEliminar = ($idper == 1 || $idper == 2); // SuperAdmin o Admin
                     <?php } ?>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 

@@ -196,13 +196,22 @@ class Mkard {
         }
     }
 
-    // ✅ Obtener productos para el select
+    // ✅ Obtener productos para el select filtrados por empresa
     public function getProductos() {
         try {
-            $sql = "SELECT idprod, nomprod FROM producto ORDER BY nomprod ASC";
-            $modelo = new conexion();
-            $conexion = $modelo->get_conexion();
-            $result = $conexion->prepare($sql);
+            $idemp = $this->getIdemp();
+            if ($idemp) {
+                $sql = "SELECT idprod, nomprod FROM producto WHERE idemp = :idemp AND act = 1 ORDER BY nomprod ASC";
+                $modelo = new conexion();
+                $conexion = $modelo->get_conexion();
+                $result = $conexion->prepare($sql);
+                $result->bindParam(':idemp', $idemp);
+            } else {
+                $sql = "SELECT idprod, nomprod FROM producto WHERE act = 1 ORDER BY nomprod ASC";
+                $modelo = new conexion();
+                $conexion = $modelo->get_conexion();
+                $result = $conexion->prepare($sql);
+            }
             $result->execute();
             return $result->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {

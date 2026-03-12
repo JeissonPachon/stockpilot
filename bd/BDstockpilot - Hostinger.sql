@@ -122,7 +122,7 @@ CREATE TABLE inventario (
     idemp INT(10),
     idprod INT(10),
     idubi INT(10),
-    cant INT,
+    cant DECIMAL(12,2),
     fec_crea DATETIME,
     fec_actu DATETIME
 );
@@ -144,7 +144,7 @@ CREATE TABLE movim (
     idubi INT(10),
     fecmov DATE,
     tipmov TINYINT(2) COMMENT '1=ENTRADA, 2=SALIDA',
-    cantmov INT,
+    cantmov DECIMAL(12,2),
     valmov DECIMAL(12,2),
     costprom DECIMAL(12,2),
     docref VARCHAR(50),
@@ -162,7 +162,7 @@ CREATE TABLE solentrada (
     fecsol DATE,
     fecent DATE,
     tippag VARCHAR(20),
-    estsol VARCHAR(20),
+    estsol VARCHAR(20) DEFAULT 'Pendiente',
     totsol DECIMAL(12,2),
     obssol TEXT,
     idusu INT(10),
@@ -172,17 +172,14 @@ CREATE TABLE solentrada (
 );
 
 CREATE TABLE solsalida (
-    idsol INT(10) PRIMARY KEY AUTO_INCREMENT,
+    idsal INT(10) PRIMARY KEY AUTO_INCREMENT,
+    fecsal DATETIME,
+    tpsal VARCHAR(50),
     idemp INT(10),
-    idubi INT(10),
-    fecsol DATE,
-    estsol VARCHAR(20),
-    totsol DECIMAL(12,2),
-    obssol TEXT,
     idusu INT(10),
-    idusu_apr INT(10),
-    fec_crea DATETIME,
-    fec_actu DATETIME
+    idubi INT(10),
+    refdoc VARCHAR(100),
+    estsal VARCHAR(20) DEFAULT 'Pendiente'
 );
 
 CREATE TABLE detentrada (
@@ -198,15 +195,14 @@ CREATE TABLE detentrada (
 );
 
 CREATE TABLE detsalida (
-    iddet INT(10) PRIMARY KEY AUTO_INCREMENT,
+    iddsal INT(10) PRIMARY KEY AUTO_INCREMENT,
     idemp INT(10),
-    idsol INT(10),
+    idsal INT(10),
     idprod INT(10),
-    cantdet INT,
-    vundet DECIMAL(10,2),
-    totdet DECIMAL(10,2) GENERATED ALWAYS AS (cantdet * vundet) STORED,
-    fec_crea DATETIME,
-    fec_actu DATETIME
+    cantdet DECIMAL(12,2),
+    vundet DECIMAL(12,2),
+    idlote INT(10),
+    origen VARCHAR(10) DEFAULT 'MANUAL'
 );
 
 CREATE TABLE dominio (
@@ -275,10 +271,15 @@ CREATE TABLE IF NOT EXISTS auditoria (
 
 CREATE TABLE lote (
     idlote INT(10) PRIMARY KEY AUTO_INCREMENT,
-    idprod INT(10),          -- Producto asociado
-    codlote VARCHAR(50),     -- Código o referencia del lote
-    fecven DATE,             -- Fecha de vencimiento (opcional)
-    cant INT,                -- Cantidad disponible en el lote
+    idprod INT(10),
+    codlot VARCHAR(50),
+    fecing DATETIME,
+    fecven DATE,
+    cantini DECIMAL(12,2),
+    cantact DECIMAL(12,2),
+    costuni DECIMAL(12,4),
+    iddent INT(10),
+    idubi INT(10),
     fec_crea DATETIME,
     fec_actu DATETIME
 );
@@ -320,19 +321,21 @@ ALTER TABLE solentrada ADD KEY fk_solent_idusuapr (idusu_apr);
 ALTER TABLE solsalida ADD KEY fk_solsal_idemp (idemp);
 ALTER TABLE solsalida ADD KEY fk_solsal_idubi (idubi);
 ALTER TABLE solsalida ADD KEY fk_solsal_idusu (idusu);
-ALTER TABLE solsalida ADD KEY fk_solsal_idusuapr (idusu_apr);
 
 ALTER TABLE detentrada ADD KEY fk_detent_idemp (idemp);
 ALTER TABLE detentrada ADD KEY fk_detent_idsol (idsol);
 ALTER TABLE detentrada ADD KEY fk_detent_idprod (idprod);
 
 ALTER TABLE detsalida ADD KEY fk_detsal_idemp (idemp);
-ALTER TABLE detsalida ADD KEY fk_detsal_idsol (idsol);
+ALTER TABLE detsalida ADD KEY fk_detsal_idsal (idsal);
 ALTER TABLE detsalida ADD KEY fk_detsal_idprod (idprod);
+ALTER TABLE detsalida ADD KEY fk_detsal_idlote (idlote);
 
 ALTER TABLE valor ADD KEY fk_val_iddom (iddom);
 
 ALTER TABLE lote ADD KEY fk_lote_idprod (idprod);
+ALTER TABLE lote ADD KEY fk_lote_idubi (idubi);
+ALTER TABLE lote ADD KEY fk_lote_iddent (iddent);
 
 -- RELACIONES --
 
@@ -376,9 +379,8 @@ ALTER TABLE solentrada
 
 ALTER TABLE solsalida
   ADD CONSTRAINT fk_solsal_emp FOREIGN KEY (idemp) REFERENCES empresa(idemp),
-  ADD CONSTRAINT fk_solsal_ubi FOREIGN KEY (idubi) REFERENCES ubicacion(idubi),
-  ADD CONSTRAINT fk_solsal_usu FOREIGN KEY (idusu) REFERENCES usuario(idusu),
-  ADD CONSTRAINT fk_solsal_usuapr FOREIGN KEY (idusu_apr) REFERENCES usuario(idusu);
+    ADD CONSTRAINT fk_solsal_usu FOREIGN KEY (idusu) REFERENCES usuario(idusu),
+    ADD CONSTRAINT fk_solsal_ubi FOREIGN KEY (idubi) REFERENCES ubicacion(idubi);
 
 ALTER TABLE detentrada
   ADD CONSTRAINT fk_detent_emp FOREIGN KEY (idemp) REFERENCES empresa(idemp),
@@ -387,8 +389,9 @@ ALTER TABLE detentrada
 
 ALTER TABLE detsalida
   ADD CONSTRAINT fk_detsal_emp FOREIGN KEY (idemp) REFERENCES empresa(idemp),
-  ADD CONSTRAINT fk_detsal_ids FOREIGN KEY (idsol) REFERENCES solsalida(idsol) ON DELETE CASCADE,
-  ADD CONSTRAINT fk_detsal_prod FOREIGN KEY (idprod) REFERENCES producto(idprod);
+    ADD CONSTRAINT fk_detsal_ids FOREIGN KEY (idsal) REFERENCES solsalida(idsal) ON DELETE CASCADE,
+    ADD CONSTRAINT fk_detsal_prod FOREIGN KEY (idprod) REFERENCES producto(idprod),
+    ADD CONSTRAINT fk_detsal_lote FOREIGN KEY (idlote) REFERENCES lote(idlote);
 
 ALTER TABLE valor ADD CONSTRAINT fkvldm FOREIGN KEY (iddom) REFERENCES dominio(iddom);
 ALTER TABLE pagina ADD CONSTRAINT fkpgmo FOREIGN KEY (idmod) REFERENCES modulo(idmod);
@@ -399,6 +402,7 @@ ALTER TABLE auditoria ADD CONSTRAINT fkauem FOREIGN KEY (idemp) REFERENCES empre
 ALTER TABLE auditoria ADD CONSTRAINT fkauus FOREIGN KEY (idusu) REFERENCES usuario(idusu);
 
 ALTER TABLE lote ADD CONSTRAINT fk_lote_prod FOREIGN KEY (idprod) REFERENCES producto(idprod);
+ALTER TABLE lote ADD CONSTRAINT fk_lote_ubi FOREIGN KEY (idubi) REFERENCES ubicacion(idubi);
 
 
 ALTER TABLE auditoria ADD KEY idx_aud_idemp (idemp);
@@ -525,7 +529,7 @@ INSERT INTO `pagina` (`idpag`, `idmod`, `nompag`, `ruta`, `icono`, `orden`, `fec
 (1010, 1, 'Movimientos', 'views/vmovim.php', 'fa fa-exchange-alt', 10, '2025-11-02 02:13:56', NULL, 1),
 (1011, 1, 'Dominios', 'views/vdom.php', 'fa fa-database', 11, '2025-11-02 02:13:56', NULL, 1),
 (1012, 1, 'Valores', 'views/vval.php', 'fa fa-check-circle', 12, '2025-11-02 02:13:56', NULL, 1),
-(1013, 1, 'Solicitud Salida', 'views/vsolsal.php', 'fa fa-file-alt', 13, '2025-11-02 02:13:56', NULL, 1),
+(1013, 1, 'Solicitud Salida', 'views/vsosal.php', 'fa fa-file-alt', 13, '2025-11-02 02:13:56', NULL, 1),
 (1014, 1, 'Detalle salida', 'views/vdetsal.php', 'fa fa-file-alt', 14, '2025-11-02 02:13:56', NULL, 1),
 (1015, 1, 'Solicitud entrada', 'views/vsoent.php', 'fa fa-file-alt', 15, '2025-11-02 02:13:56', NULL, 1),
 (1016, 1, 'Modulo', 'views/vmod.php', 'fa fa-file-alt', 16, '2025-11-02 02:13:56', NULL, 1),

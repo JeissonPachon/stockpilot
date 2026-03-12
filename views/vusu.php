@@ -2,6 +2,8 @@
 require_once('controllers/cusu.php');
 ?>
 
+<div class="module-panel module-users">
+
 <h2><i class="fas fa-user"></i> Gestión de Usuarios</h2>
 
 <form action="home.php?pg=<?= $pg ?>" method="POST" enctype="multipart/form-data">
@@ -24,9 +26,14 @@ require_once('controllers/cusu.php');
 
         <div class="form-group col-md-6">
             <label for="tdousu">Tipo de documento</label>
-            <input type="text" name="tdousu" id="tdousu" class="form-control"
-                placeholder="CC, TI, CE, etc."
-                value="<?php if($datOne) echo $datOne['tdousu']; ?>">
+            <select name="tdousu" id="tdousu" class="form-control" required>
+                <option value="">Seleccione...</option>
+                <option value="CC" <?php if($datOne && $datOne['tdousu'] == 'CC') echo 'selected'; ?>>Cedula de ciudadania</option>
+                <option value="TI" <?php if($datOne && $datOne['tdousu'] == 'TI') echo 'selected'; ?>>Tarjeta de identidad</option>
+                <option value="CE" <?php if($datOne && $datOne['tdousu'] == 'CE') echo 'selected'; ?>>Cedula de extranjeria</option>
+                <option value="PA" <?php if($datOne && $datOne['tdousu'] == 'PA') echo 'selected'; ?>>Pasaporte</option>
+                <option value="NIT" <?php if($datOne && $datOne['tdousu'] == 'NIT') echo 'selected'; ?>>NIT</option>
+            </select>
         </div>
 
         <div class="form-group col-md-6">
@@ -110,7 +117,7 @@ require_once('controllers/cusu.php');
         </div>
 
         <div class="form-group col-md-12 mt-3">
-            <input type="submit" class="btn btn-dark form-control" value="Guardar Usuario">
+            <input type="submit" class="btn btn-primary" value="Guardar Usuario">
         </div>
 
     </div>
@@ -118,6 +125,7 @@ require_once('controllers/cusu.php');
 
 <hr>
 
+<div class="table-responsive">
 <table id="table" class="table table-striped table-bordered">
     <thead class="table-dark">
         <tr>
@@ -150,19 +158,21 @@ require_once('controllers/cusu.php');
                         $btn_icon = $current_status == 1 ? 'fa-user-lock' : 'fa-user-check';
                         $btn_title = $current_status == 1 ? 'Desactivar Usuario' : 'Activar Usuario';
                     ?>
-                    <a href="controllers/cstatus.php?action=user&id=<?= $dt['idusu']; ?>&estado=<?= $new_status; ?>" 
-                        class="btn btn-sm <?= $btn_class; ?> me-1" title="<?= $btn_title; ?>">
-                        <i class="fa-solid <?= $btn_icon; ?>"></i>
-                    </a>
-                    
-                    <a href="home.php?pg=<?= $pg; ?>&idusu=<?= $dt['idusu']; ?>&ope=edi" title="Editar">
-                        <i class="fa-solid fa-pen-to-square fa-2x text-primary"></i>
-                    </a>
-                    <a href="javascript:void(0);" onclick="confirmarEliminacion(
-                        'controllers/cdelete.php?action=user&id=<?= $dt['idusu']; ?>'
-                    )" title="Eliminar">
-                        <i class="fa-solid fa-trash-can fa-2x text-danger"></i>
-                    </a>
+                    <div class="action-buttons">
+                        <a href="controllers/cstatus.php?action=user&id=<?= $dt['idusu']; ?>&estado=<?= $new_status; ?>" 
+                            class="btn btn-sm <?= $btn_class; ?>" title="<?= $btn_title; ?>">
+                            <i class="fa-solid <?= $btn_icon; ?>"></i>
+                        </a>
+                        
+                        <a href="home.php?pg=<?= $pg; ?>&idusu=<?= $dt['idusu']; ?>&ope=edi" class="btn btn-sm btn-outline-warning" title="Editar">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <a href="javascript:void(0);" onclick="confirmarEliminacion(
+                            'controllers/cdelete.php?action=user&id=<?= $dt['idusu']; ?>'
+                        )" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                    </div>
                 </td>
             </tr>
         <?php }} else { ?>
@@ -170,6 +180,9 @@ require_once('controllers/cusu.php');
         <?php } ?>
     </tbody>
 </table>
+</div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

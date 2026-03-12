@@ -1,4 +1,5 @@
 <?php
+require_once('conexion.php');
 
 class Musu {
     private $idusu;
@@ -9,6 +10,7 @@ class Musu {
     private $celusu;
     private $emausu;
     private $pasusu;
+    private $imgusu;
     private $idper;
     private $fec_crea;
     private $fec_actu;
@@ -38,6 +40,9 @@ class Musu {
     }
     function getPasusu(){
         return $this->pasusu;
+    }
+    function getImgusu(){
+        return $this->imgusu;
     }
     function getIdper(){
         return $this->idper;
@@ -77,6 +82,9 @@ class Musu {
     function setPasusu($pasusu){
         $this->pasusu = $pasusu;
     }
+    function setImgusu($imgusu){
+        $this->imgusu = $imgusu;
+    }
     function setIdper($idper){
         $this->idper = $idper;
     }
@@ -93,7 +101,7 @@ class Musu {
     // ======= MÉTODOS CRUD =======
     public function getAll(){
         try{
-            $sql = "SELECT u.idusu, u.nomusu, u.apeusu, u.tdousu, u.ndousu, u.celusu, u.emausu, u.idper, u.fec_crea, u.fec_actu, u.act, p.nomper 
+                $sql = "SELECT u.idusu, u.nomusu, u.apeusu, u.tdousu, u.ndousu, u.celusu, u.emausu, u.imgusu, u.idper, u.fec_crea, u.fec_actu, u.act, p.nomper 
                     FROM usuario u 
                     INNER JOIN perfil p ON u.idper = p.idper";
             $modelo = new conexion();
@@ -108,7 +116,7 @@ class Musu {
 
     public function getOne(){
         try{
-            $sql = "SELECT u.idusu, u.nomusu, u.apeusu, u.tdousu, u.ndousu, u.celusu, u.emausu, u.pasusu, u.idper, u.fec_crea, u.fec_actu, u.act, p.nomper 
+                $sql = "SELECT u.idusu, u.nomusu, u.apeusu, u.tdousu, u.ndousu, u.celusu, u.emausu, u.pasusu, u.imgusu, u.idper, u.fec_crea, u.fec_actu, u.act, p.nomper 
                     FROM usuario u 
                     INNER JOIN perfil p ON u.idper = p.idper 
                     WHERE u.idusu=:idusu";
@@ -126,8 +134,8 @@ class Musu {
     // ✅ save corregido
     public function save(){
         try{
-            $sql = "INSERT INTO usuario(nomusu, apeusu, tdousu, ndousu, celusu, emausu, pasusu, idper, fec_crea, fec_actu, act) 
-                    VALUES (:nomusu, :apeusu, :tdousu, :ndousu, :celusu, :emausu, :pasusu, :idper, :fec_crea, :fec_actu, :act)";
+                $sql = "INSERT INTO usuario(nomusu, apeusu, tdousu, ndousu, celusu, emausu, pasusu, imgusu, idper, fec_crea, fec_actu, act) 
+                    VALUES (:nomusu, :apeusu, :tdousu, :ndousu, :celusu, :emausu, :pasusu, :imgusu, :idper, :fec_crea, :fec_actu, :act)";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
@@ -139,6 +147,7 @@ class Musu {
             $result->bindParam(':celusu', $this->celusu);
             $result->bindParam(':emausu', $this->emausu);
             $result->bindParam(':pasusu', $this->pasusu);
+            $result->bindParam(':imgusu', $this->imgusu);
             $result->bindParam(':idper', $this->idper);
             $result->bindParam(':fec_crea', $this->fec_crea);
             $result->bindParam(':fec_actu', $this->fec_actu);
@@ -154,7 +163,7 @@ class Musu {
 
     public function edit(){
         try{
-            $sql = "UPDATE usuario SET nomusu=:nomusu, apeusu=:apeusu, tdousu=:tdousu, ndousu=:ndousu, celusu=:celusu, emausu=:emausu, pasusu=:pasusu, idper=:idper, fec_crea=:fec_crea, fec_actu=:fec_actu, act=:act 
+                $sql = "UPDATE usuario SET nomusu=:nomusu, apeusu=:apeusu, tdousu=:tdousu, ndousu=:ndousu, celusu=:celusu, emausu=:emausu, pasusu=:pasusu, imgusu=:imgusu, idper=:idper, fec_crea=:fec_crea, fec_actu=:fec_actu, act=:act 
                     WHERE idusu=:idusu";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
@@ -168,14 +177,13 @@ class Musu {
             $result->bindParam(':celusu', $this->celusu);
             $result->bindParam(':emausu', $this->emausu);
             $result->bindParam(':pasusu', $this->pasusu);
+            $result->bindParam(':imgusu', $this->imgusu);
             $result->bindParam(':idper', $this->idper);
             $result->bindParam(':fec_crea', $this->fec_crea);
             $result->bindParam(':fec_actu', $this->fec_actu);
             $result->bindParam(':act', $this->act);
 
-            $result->execute();
-            $res = $result->fetchAll(PDO::FETCH_ASSOC);
-            return $res;
+            return $result->execute();
         }catch(Exception $e){
             echo "Error: ".$e->getMessage()."<br>";
         }

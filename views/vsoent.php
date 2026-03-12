@@ -1,12 +1,24 @@
 <?php require_once __DIR__ . '/../controllers/csoent.php'; ?>
 
-<div class="container-fluid px-4 mt-4">
+<?php
+$estadoEntrada = $cabEntrada['estsol'] ?? 'Pendiente';
+$entradaAprobada = ($estadoEntrada === 'Aprobada');
+?>
+
+<div class="container-fluid px-4 mt-4 module-panel module-soent">
     <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fa-solid fa-dolly text-success me-2"></i>Detalle de Entrada
+                <i class="fa-solid fa-dolly text-primary me-2"></i>Detalle de Entrada
             </h1>
+            <div class="mt-2">
+                <?php if ($entradaAprobada): ?>
+                    <span class="badge bg-success-subtle text-success border border-success">Estado: Aprobada</span>
+                <?php else: ?>
+                    <span class="badge bg-light text-dark border border-secondary-subtle">Estado: Pendiente</span>
+                <?php endif; ?>
+            </div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0 bg-transparent ps-0">
                     <li class="breadcrumb-item"><a href="home.php" class="text-decoration-none text-muted">Inicio</a></li>
@@ -16,11 +28,17 @@
             </nav>
         </div>
         <?php if (isset($detalles) && count($detalles) > 0): ?>
-            <a href="home.php?pg=1015&idsol=<?= $idsol ?>&aprobar=1" 
-               class="btn btn-success btn-lg shadow-sm" 
-               onclick="return confirm('¿Aprobar esta solicitud y crear movimientos en el Kardex?\n\nEsto agregará automáticamente los productos al inventario.')">
-                <i class="fa-solid fa-check-circle me-2"></i>Aprobar Entrada
-            </a>
+            <?php if ($entradaAprobada): ?>
+                <button type="button" class="btn btn-primary btn-lg shadow-sm" disabled>
+                    <i class="fa-solid fa-check-circle me-2"></i>Aprobar Entrada
+                </button>
+            <?php else: ?>
+                <a href="home.php?pg=1015&idsol=<?= $idsol ?>&aprobar=1" 
+                   class="btn btn-primary btn-lg shadow-sm"
+                   onclick="return confirm('¿Aprobar esta solicitud y crear movimientos en el Kardex?\n\nEsto agregará automáticamente los productos al inventario.')">
+                    <i class="fa-solid fa-check-circle me-2"></i>Aprobar Entrada
+                </a>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 
@@ -46,7 +64,7 @@
         <!-- Columna Izquierda: Formulario de Registro -->
         <div class="col-lg-4">
             <div class="card shadow border-0 rounded-3 h-100">
-                <div class="card-header bg-success text-white py-3 rounded-top-3">
+                <div class="card-header bg-dark text-white py-3 rounded-top-3">
                     <h5 class="card-title mb-0 fw-bold">
                         <i class="fa-solid fa-plus-circle me-2"></i>Agregar Producto
                     </h5>
@@ -58,11 +76,20 @@
                         <div class="mb-4">
                             <label for="nomprod_display" class="form-label fw-bold text-secondary small text-uppercase">Producto</label>
                             <div class="input-group">
-                                <input type="hidden" name="idprod" id="idprod" required>
-                                <input type="text" class="form-control form-control-lg bg-white" id="nomprod_display" placeholder="Click en la lupa para buscar ->" readonly required style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalProductos">
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalProductos" title="Buscar en catálogo">
+                                <input type="hidden" name="idprod" id="idprod">
+                                <input type="text" class="form-control form-control-lg bg-white" id="nomprod_display" placeholder="Click en la lupa para buscar ->" readonly required style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalProductos" <?php echo $entradaAprobada ? 'disabled' : ''; ?>>
+                                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalProductos" title="Buscar en catálogo" <?php echo $entradaAprobada ? 'disabled' : ''; ?>>
                                     <i class="fa-solid fa-search"></i>
                                 </button>
+                            </div>
+                            <div class="mt-2">
+                                <select name="idprod_select" id="idprod_select" class="form-select" <?php echo $entradaAprobada ? 'disabled' : ''; ?>>
+                                    <option value="">Seleccione producto (lista)</option>
+                                    <?php foreach (($productos ?? []) as $p): ?>
+                                        <option value="<?= $p['idprod'] ?>"><?= htmlspecialchars($p['nomprod']) ?> (<?= htmlspecialchars($p['codprod'] ?? '') ?>)</option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="text-muted">Si no abre el modal, selecciona aqui.</small>
                             </div>
                         </div>
                         
@@ -71,14 +98,14 @@
                                 <label for="cantdet" class="form-label fw-bold text-secondary small text-uppercase">Cantidad</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-secondary-subtle"><i class="fa-solid fa-hashtag text-muted"></i></span>
-                                    <input type="number" name="cantdet" id="cantdet" class="form-control border-secondary-subtle" min="1" step="1" placeholder="0" required>
+                                    <input type="number" name="cantdet" id="cantdet" class="form-control border-secondary-subtle" min="1" step="1" placeholder="0" required <?php echo $entradaAprobada ? 'disabled' : ''; ?>>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <label for="vundet" class="form-label fw-bold text-secondary small text-uppercase">Costo Unit.</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-secondary-subtle"><i class="fa-solid fa-dollar-sign text-muted"></i></span>
-                                    <input type="number" name="vundet" id="vundet" class="form-control border-secondary-subtle" min="0" step="0.01" placeholder="0.00" required>
+                                    <input type="number" name="vundet" id="vundet" class="form-control border-secondary-subtle" min="0" step="0.01" placeholder="0.00" required <?php echo $entradaAprobada ? 'disabled' : ''; ?>>
                                 </div>
                             </div>
                         </div>
@@ -87,19 +114,24 @@
                             <label class="form-label fw-bold text-secondary small text-uppercase mb-1">Total Estimado</label>
                             <div class="d-flex align-items-center justify-content-between">
                                 <span class="text-muted small">Cantidad x Costo</span>
-                                <h3 class="mb-0 text-success fw-bold" id="total_display">$0.00</h3>
+                                <h3 class="mb-0 text-primary fw-bold" id="total_display">$0.00</h3>
                             </div>
                             <input type="hidden" id="total_preview">
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                            <button type="submit" class="btn btn-primary btn-lg shadow-sm" <?php echo $entradaAprobada ? 'disabled' : ''; ?>>
                                 <i class="fa-solid fa-save me-2"></i>Guardar Registro
                             </button>
-                            <button type="reset" class="btn btn-light text-muted border">
+                            <button type="reset" class="btn btn-light text-muted border" <?php echo $entradaAprobada ? 'disabled' : ''; ?>>
                                 <i class="fa-solid fa-eraser me-2"></i>Limpiar
                             </button>
                         </div>
+                        <?php if ($entradaAprobada): ?>
+                            <div class="mt-3 small text-muted">
+                                Esta solicitud ya fue aprobada. Para cambios, cree una nueva solicitud de entrada.
+                            </div>
+                        <?php endif; ?>
                     </form>
                 </div>
             </div>
@@ -113,7 +145,7 @@
                         <i class="fa-solid fa-list-check me-2"></i>Items Registrados
                     </h5>
                     <?php if (isset($detalles) && count($detalles) > 0): ?>
-                        <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill">
+                        <span class="badge bg-light text-dark border border-secondary-subtle px-3 py-2 rounded-pill">
                             <?= count($detalles) ?> productos
                         </span>
                     <?php endif; ?>
@@ -140,7 +172,7 @@
                                     <tr>
                                         <td class="ps-4 fw-bold text-dark">
                                             <div class="d-flex align-items-center">
-                                                <div class="bg-success-subtle text-success rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                <div class="bg-light text-secondary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
                                                     <i class="fa-solid fa-box"></i>
                                                 </div>
                                                 <?= htmlspecialchars($d['nomprod']) ?>
@@ -152,14 +184,20 @@
                                             </span>
                                         </td>
                                         <td class="text-end text-muted">$<?= number_format($d['vundet'], 2, ',', '.') ?></td>
-                                        <td class="text-end fw-bold text-success">$<?= number_format($d['totdet'], 2, ',', '.') ?></td>
+                                        <td class="text-end fw-bold text-primary">$<?= number_format($d['totdet'], 2, ',', '.') ?></td>
                                         <td class="text-center pe-4">
-                                            <a href="home.php?pg=1015&idsol=<?= $idsol ?>&delete=<?= $d['iddet'] ?>" 
-                                               class="btn btn-outline-danger btn-sm rounded-circle shadow-sm" 
-                                               onclick="return confirm('¿Está seguro de eliminar este registro?')"
-                                               data-bs-toggle="tooltip" title="Eliminar">
-                                                <i class="fa-solid fa-trash-can"></i>
-                                            </a>
+                                            <?php if ($entradaAprobada): ?>
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle shadow-sm" disabled title="Solicitud aprobada: no editable">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            <?php else: ?>
+                                                <a href="home.php?pg=1015&idsol=<?= $idsol ?>&delete=<?= $d['iddet'] ?>" 
+                                                   class="btn btn-outline-danger btn-sm rounded-circle shadow-sm" 
+                                                   onclick="return confirm('¿Está seguro de eliminar este registro?')"
+                                                   data-bs-toggle="tooltip" title="Eliminar">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </a>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -167,7 +205,7 @@
                                 <tfoot class="bg-light border-top">
                                     <tr>
                                         <td colspan="3" class="text-end py-3 pe-4 fw-bold text-secondary text-uppercase">Total General:</td>
-                                        <td class="text-end py-3 fw-bold text-success fs-5">$<?= number_format($gran_total, 2, ',', '.') ?></td>
+                                        <td class="text-end py-3 fw-bold text-primary fs-5">$<?= number_format($gran_total, 2, ',', '.') ?></td>
                                         <td></td>
                                     </tr>
                                 </tfoot>
@@ -192,7 +230,7 @@
 <div class="modal fade" id="modalProductos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header bg-success text-white border-0 rounded-top-4">
+            <div class="modal-header bg-dark text-white border-0 rounded-top-4">
                 <h5 class="modal-title fw-bold"><i class="fa-solid fa-boxes-stacked me-2"></i>Catálogo de Productos</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -215,10 +253,11 @@
                                         <td class="fw-bold text-dark"><?= htmlspecialchars($p['nomprod']) ?></td>
                                         <td><span class="badge bg-secondary-subtle text-secondary rounded-pill"><?= htmlspecialchars($p['nomcat'] ?? 'General') ?></span></td>
                                         <td class="text-end pe-4">
-                                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 selecting-prod" 
+                                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 selecting-prod" 
                                                     data-id="<?= $p['idprod'] ?>" 
                                                     data-nombre="<?= htmlspecialchars($p['nomprod']) ?>"
-                                                    data-bs-dismiss="modal">
+                                                    data-bs-dismiss="modal"
+                                                    <?php echo $entradaAprobada ? 'disabled' : ''; ?>>
                                                 Seleccionar <i class="fa-solid fa-arrow-right ms-1"></i>
                                             </button>
                                         </td>
@@ -254,6 +293,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const cantidadInput = document.getElementById('cantdet');
     const valorInput = document.getElementById('vundet');
     const totalDisplay = document.getElementById('total_display');
+
+    const dtLang = {
+        decimal: "",
+        emptyTable: "No hay datos disponibles",
+        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+        infoEmpty: "Mostrando 0 a 0 de 0 registros",
+        infoFiltered: "(filtrado de _MAX_ registros totales)",
+        infoPostFix: "",
+        thousands: ",",
+        lengthMenu: "Mostrar _MENU_ registros",
+        loadingRecords: "Cargando...",
+        processing: "Procesando...",
+        search: "Buscar:",
+        zeroRecords: "No se encontraron registros coincidentes",
+        paginate: {
+            first: "Primero",
+            last: "Ultimo",
+            next: "Siguiente",
+            previous: "Anterior"
+        }
+    };
     
     function calcularTotal() {
         const cantidad = parseFloat(cantidadInput.value) || 0;
@@ -270,9 +330,9 @@ document.addEventListener('DOMContentLoaded', function() {
         totalDisplay.textContent = formatter.format(total);
         
         // Animación simple
-        totalDisplay.classList.remove('text-success');
+        totalDisplay.classList.remove('text-primary');
         void totalDisplay.offsetWidth; // Trigger reflow
-        totalDisplay.classList.add('text-success');
+        totalDisplay.classList.add('text-primary');
     }
     
     if(cantidadInput && valorInput) {
@@ -294,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar DataTables
     if($('#tableDetalles').length) {
         $('#tableDetalles').DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' },
+            language: dtLang,
             pageLength: 10,
             responsive: true,
             dom: '<"p-2 pb-3"f>rtip', // Buscador habilitado
@@ -304,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if($('#tableProductosModal').length) {
         $('#tableProductosModal').DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json' },
+            language: dtLang,
             pageLength: 5,
             lengthMenu: [5, 10, 25],
             dom: '<"p-3"f>rt<"p-3 d-flex justify-content-between align-items-center"ip>'
@@ -318,9 +378,23 @@ document.addEventListener('DOMContentLoaded', function() {
         
         $('#idprod').val(id);
         $('#nomprod_display').val(nombre);
+        $('#idprod_select').val(id);
         
         // Enfocar cantidad
         setTimeout(() => { $('#cantdet').focus(); }, 300);
+    });
+
+    // Seleccion desde lista
+    $('#idprod_select').on('change', function () {
+        const id = $(this).val();
+        if (!id) {
+            $('#idprod').val('');
+            return;
+        }
+        const nombre = $('#idprod_select option:selected').text();
+        $('#idprod').val(id);
+        $('#nomprod_display').val(nombre);
+        setTimeout(() => { $('#cantdet').focus(); }, 150);
     });
 });
 </script>
@@ -329,8 +403,41 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Estilos personalizados adicionales */
 .text-gray-800 { color: #2d3748; }
 .text-gray-300 { color: #e2e8f0; }
-.bg-success-subtle { background-color: #d1e7dd; }
 .card { transition: transform 0.2s; }
 .card:hover { transform: translateY(-2px); }
-.table-hover tbody tr:hover { background-color: rgba(25, 135, 84, 0.05); }
+.table-hover tbody tr:hover { background-color: rgba(52, 73, 94, 0.06); }
+
+/* Responsive especifico del modulo */
+@media (max-width: 992px) {
+    .module-soent .d-flex.justify-content-between.align-items-center.mb-4 {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+    }
+
+    .module-soent .btn-lg {
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 0.65rem 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .module-soent .card-body {
+        padding: 1rem !important;
+    }
+
+    .module-soent .table {
+        min-width: 760px;
+    }
+
+    .module-soent .h3 {
+        font-size: 1.2rem;
+    }
+
+    .module-soent .input-group .btn {
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+    }
+}
 </style>

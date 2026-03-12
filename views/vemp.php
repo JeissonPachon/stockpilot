@@ -82,13 +82,13 @@ if ($perfil == 1) {
         margin: 0;
     }
     .btn-create-empresa {
-        background-color: #343a40; /* Botón oscuro, estilo desarrollador */
-        border-color: #343a40;
+        background-color: #3b5998;
+        border-color: #3b5998;
         color: #fff;
     }
     .btn-create-empresa:hover {
-        background-color: #212529;
-        border-color: #212529;
+        background-color: #2d4373;
+        border-color: #2d4373;
         color: #fff;
     }
     .chart-container {
@@ -99,13 +99,60 @@ if ($perfil == 1) {
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         height: 350px; /* Altura fija para la gráfica */
     }
-    .modal-header-custom {
-        background-color: #343a40;
+    .stockpilot-modal .modal-content {
+        border: 0;
+        border-radius: 1rem;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+    }
+    .stockpilot-modal .modal-header {
+        background: linear-gradient(135deg, #3b5998, #2d4373);
         color: white;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+    }
+    .stockpilot-modal .modal-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 0.8rem 1rem;
+    }
+    .stockpilot-modal .modal-title {
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+    .stockpilot-modal .modal-body {
+        padding: 1rem 1rem 0.8rem 1rem;
+        background: #fbfcff;
+    }
+    .stockpilot-modal .form-label {
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 0.2rem;
+        font-size: 0.9rem;
+    }
+    .stockpilot-modal .form-control,
+    .stockpilot-modal .form-select {
+        border-radius: 0.65rem;
+        border: 1px solid #d7dfec;
+        padding: 0.5rem 0.72rem;
+        font-size: 0.92rem;
+    }
+    .stockpilot-modal .form-control:focus,
+    .stockpilot-modal .form-select:focus {
+        border-color: #3b5998;
+        box-shadow: 0 0 0 0.2rem rgba(59, 89, 152, 0.16);
+    }
+    .stockpilot-modal .modal-footer .btn {
+        min-width: 120px;
+    }
+    .stockpilot-modal .logo-preview {
+        max-width: 100px;
+        max-height: 100px;
+        border-radius: 0.5rem;
+        border: 1px solid #dbe2ef;
+        margin-bottom: 6px;
     }
 </style>
 
-<div class="container-fluid px-4 py-3">
+<div class="container-fluid px-4 py-3 module-panel module-empresas">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0 text-dark"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Panel de Administración de Empresas</h2>
@@ -250,10 +297,10 @@ if ($perfil == 1) {
     
 </div>
 
-<div class="modal fade" id="empresaFormModal" tabindex="-1" aria-labelledby="empresaFormModalLabel" aria-hidden="true">
+<div class="modal fade stockpilot-modal" id="empresaFormModal" tabindex="-1" aria-labelledby="empresaFormModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header modal-header-custom">
+      <div class="modal-header">
         <h5 class="modal-title" id="empresaFormModalLabel">
             <i class="fa-solid fa-building me-2"></i>
             <?php echo ($datOne && $datOne[0]['idemp']) ? 'Editar Empresa' : 'Registrar Nueva Empresa'; ?>
@@ -263,64 +310,64 @@ if ($perfil == 1) {
 
       <form action="home.php?pg=<?=$pg;?>" method="POST" enctype="multipart/form-data">
         <div class="modal-body">
-            <div class="row g-3">
+            <div class="row g-2">
 
-                <div class="form-group col-md-6">
-                    <label for="nomemp">Nombre Empresa</label>
+                <div class="col-md-6">
+                    <label for="nomemp" class="form-label">Nombre Empresa</label>
                     <input type="text" name="nomemp" id="nomemp" class="form-control" 
                         value="<?php if($datOne && $datOne[0]['nomemp']) echo htmlspecialchars($datOne[0]['nomemp']); ?>" required>
                 </div>
 
-                <div class="form-group col-md-6">
-                    <label for="razemp">Razón Social</label>
+                <div class="col-md-6">
+                    <label for="razemp" class="form-label">Razón Social</label>
                     <input type="text" name="razemp" id="razemp" class="form-control" 
                         value="<?php if($datOne && $datOne[0]['razemp']) echo htmlspecialchars($datOne[0]['razemp']); ?>" required>
                 </div>
 
-                <div class="form-group col-md-6">
-                    <label for="nitemp">NIT</label>
+                <div class="col-md-6">
+                    <label for="nitemp" class="form-label">NIT</label>
                     <input type="text" name="nitemp" id="nitemp" class="form-control" 
                         value="<?php if($datOne && $datOne[0]['nitemp']) echo htmlspecialchars($datOne[0]['nitemp']); ?>" required>
                 </div>
 
-                <div class="form-group col-md-6">
-                    <label for="diremp">Dirección</label>
+                <div class="col-md-6">
+                    <label for="diremp" class="form-label">Dirección</label>
                     <input type="text" name="diremp" id="diremp" class="form-control" 
                         value="<?php if($datOne && $datOne[0]['diremp']) echo htmlspecialchars($datOne[0]['diremp']); ?>" required>
                 </div>
 
-                <div class="form-group col-md-6">
-                    <label for="telemp">Teléfono</label>
+                <div class="col-md-6">
+                    <label for="telemp" class="form-label">Teléfono</label>
                     <input type="text" name="telemp" id="telemp" class="form-control" 
                         value="<?php if($datOne && $datOne[0]['telemp']) echo htmlspecialchars($datOne[0]['telemp']); ?>">
                 </div>
 
-                <div class="form-group col-md-6">
-                    <label for="emaemp">Email</label>
+                <div class="col-md-6">
+                    <label for="emaemp" class="form-label">Correo electrónico</label>
                     <input type="email" name="emaemp" id="emaemp" class="form-control" 
                         value="<?php if($datOne && $datOne[0]['emaemp']) echo htmlspecialchars($datOne[0]['emaemp']); ?>">
                 </div>
 
-                <div class="form-group col-md-6">
-                    <label for="logo_file">Logo de la Empresa</label>
+                <div class="col-md-6">
+                    <label for="logo_file" class="form-label">Logo de la empresa</label>
 
                     <?php if ($datOne && $datOne[0]['idemp'] && !empty($datOne[0]['logo'])): ?>
-                        <p>Logo actual:</p>
+                        <p class="mb-1 text-muted small">Logo actual:</p>
                         <img src="img/logos/<?php echo htmlspecialchars($datOne[0]['logo']); ?>" 
                              alt="Logo Empresa" 
-                             style="max-width: 100px; max-height: 100px; margin-bottom: 10px;">
+                             class="logo-preview">
                         <br>
                     <?php endif; ?>
 
-                    <input type="file" class="form-control-file" id="logo_file" name="logo_file" accept="image/*">
-                    <small class="form-text text-muted">Sube una nueva imagen (JPG, PNG, GIF, etc.).</small>
+                    <input type="file" class="form-control" id="logo_file" name="logo_file" accept="image/*">
+                    <small class="text-muted d-block mt-1">Formatos recomendados: JPG, PNG o GIF.</small>
                 </div>
 
-                <div class="form-group col-md-6">
-                    <label for="act">Estado (ID)</label>
-                    <select name="act" id="act" class="form-control">
-                        <option value="1" <?php if($datOne && $datOne[0]['act'] == 1) echo 'selected'; ?>>Activa (1)</option>
-                        <option value="0" <?php if($datOne && $datOne[0]['act'] == 0) echo 'selected'; ?>>Inactiva (0)</option>
+                <div class="col-md-6">
+                    <label for="act" class="form-label">Estado</label>
+                    <select name="act" id="act" class="form-select">
+                        <option value="1" <?php if($datOne && $datOne[0]['act'] == 1) echo 'selected'; ?>>Activa</option>
+                        <option value="0" <?php if($datOne && $datOne[0]['act'] == 0) echo 'selected'; ?>>Inactiva</option>
                     </select>
 
                     <input type="hidden" name="estado" id="estado" 
@@ -338,7 +385,7 @@ if ($perfil == 1) {
                 value="<?php echo ($datOne && $datOne[0]['idemp']) ? 'save' : 'save_reg'; ?>">
 
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <input type="submit" class="btn btn-create-empresa" 
+            <input type="submit" class="btn btn-gradient" 
                 value="<?php echo ($datOne && $datOne[0]['idemp']) ? 'Actualizar' : 'Guardar Empresa'; ?>">
         </div>
       </form>
@@ -743,17 +790,57 @@ if (!$emp) {
             color: #555;
         }
         .btn-gradient {
-            background: linear-gradient(135deg, #444, #222);
+            background: linear-gradient(135deg, #3b5998, #2d4373);
             color: white;
             border: none;
             transition: 0.3s ease;
         }
         .btn-gradient:hover {
-            background: linear-gradient(135deg, #555, #000);
+            background: linear-gradient(135deg, #2d4373, #24385f);
         }
-        .modal-header {
-            background: linear-gradient(135deg, #333, #000);
+        .stockpilot-modal .modal-content {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+        }
+        .stockpilot-modal .modal-header {
+            background: linear-gradient(135deg, #3b5998, #2d4373);
             color: white;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+        .stockpilot-modal .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 0.8rem 1rem;
+        }
+        .stockpilot-modal .modal-title {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+        .stockpilot-modal .modal-body {
+            padding: 1rem 1rem 0.8rem 1rem;
+            background: #fbfcff;
+        }
+        .stockpilot-modal .form-label {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.2rem;
+            font-size: 0.9rem;
+        }
+        .stockpilot-modal .form-control,
+        .stockpilot-modal .form-select {
+            border-radius: 0.65rem;
+            border: 1px solid #d7dfec;
+            padding: 0.5rem 0.72rem;
+            font-size: 0.92rem;
+        }
+        .stockpilot-modal .form-control:focus,
+        .stockpilot-modal .form-select:focus {
+            border-color: #3b5998;
+            box-shadow: 0 0 0 0.2rem rgba(59, 89, 152, 0.16);
+        }
+        .stockpilot-modal .modal-footer .btn {
+            min-width: 120px;
         }
         .badge-estado {
             font-size: 0.9rem;
@@ -766,7 +853,7 @@ if (!$emp) {
         }
     </style>
 
-    <div class="container-fluid px-4 py-5">
+    <div class="container-fluid px-4 py-5 module-panel module-empresas">
         <div class="empresa-header text-center position-relative">
             <div class="d-flex justify-content-center">
                 <img src="<?= $ruta_logo_final; ?>" alt="Logo Empresa">
@@ -798,17 +885,17 @@ if (!$emp) {
         </div>
     </div>
 
-    <div class="modal fade" id="editarEmpresaModal" tabindex="-1" aria-labelledby="editarEmpresaLabel" aria-hidden="true">
+        <div class="modal fade stockpilot-modal" id="editarEmpresaModal" tabindex="-1" aria-labelledby="editarEmpresaLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content rounded-4 shadow-lg">
+                <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="editarEmpresaLabel"><i class="fas fa-pen-to-square me-2"></i>Editar información de empresa</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
 
           <form action="home.php?pg=<?= $pg; ?>" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
-            <div class="modal-body">
-              <div class="row g-3">
+                        <div class="modal-body">
+                            <div class="row g-2">
                 
                 <div class="col-md-6">
                   <label class="form-label">Nombre Empresa</label>
@@ -823,7 +910,7 @@ if (!$emp) {
                 <div class="col-md-6">
                   <label class="form-label">NIT</label>
                   <input type="text" name="nitemp_view" class="form-control" value="<?= htmlspecialchars($emp['nitemp']); ?>" required readonly>
-                  <small class="form-text text-muted">El NIT no puede ser modificado.</small>
+                    <small class="text-muted d-block mt-1">El NIT no puede ser modificado.</small>
                 </div>
                 
                 <div class="col-md-6">
@@ -849,7 +936,7 @@ if (!$emp) {
                         class="form-control" 
                         accept="image/*, .webp, .avif, .svg" 
                         >
-                    <small class="form-text text-muted">El logo actual es: **<?= htmlspecialchars($emp['logo']); ?>**. Subir uno nuevo lo reemplazará.</small>
+                    <small class="text-muted d-block mt-1">Logo actual: <?= htmlspecialchars($emp['logo']); ?>. Si subes uno nuevo, se reemplazará.</small>
                 </div>
                 
               </div>

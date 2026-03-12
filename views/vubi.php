@@ -1,7 +1,7 @@
 <?php require_once __DIR__ . '/../controllers/cubi.php'; ?>
-<div class="conte">
+<div class="conte module-panel module-ubicaciones">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2><i class="fa-solid fa-location-dot"></i> Ubicaciones</h2>
+        <h2 class="text-dark"><i class="fa-solid fa-location-dot"></i> Ubicaciones</h2>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="home.php">Inicio</a></li>
@@ -12,11 +12,11 @@
 
     <!-- Formulario -->
     <div class="card shadow-sm mb-4 border-0">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-dark text-white">
             <h5 class="mb-0"><i class="fa-solid fa-pen-to-square"></i> <?= isset($datOne[0]) ? 'Editar Ubicación' : 'Nueva Ubicación' ?></h5>
         </div>
         <div class="card-body">
-            <form method="post" action="home.php?pg=1017" class="row g-3">
+            <form method="post" action="home.php?pg=1017" class="row g-2">
                 <input type="hidden" name="idubi" value="<?= isset($datOne[0]['idubi']) ? $datOne[0]['idubi'] : '' ?>">
                 
                 <div class="col-md-3">
@@ -73,12 +73,12 @@
                 </div>
                 
                 <div class="col-md-2 align-self-end d-grid gap-2">
-                    <button type="submit" name="ope" value="save" class="btn btn-success">
-                        <i class="fa fa-save"></i> <?= isset($datOne[0]) ? 'Guardar' : 'Agregar' ?>
+                    <button type="submit" name="ope" value="save" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> <?= isset($datOne[0]) ? 'Guardar' : 'Agregar' ?>
                     </button>
                     <?php if(isset($datOne[0])): ?>
-                        <a href="home.php?pg=1017" class="btn btn-secondary">
-                            <i class="fa fa-times"></i> Cancelar
+                        <a href="home.php?pg=1017" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-xmark"></i> Cancelar
                         </a>
                     <?php endif; ?>
                 </div>
@@ -88,7 +88,7 @@
 
     <!-- Lista -->
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3">
+        <div class="card-header bg-light py-3 border-bottom">
             <h5 class="mb-0 text-secondary"><i class="fa-solid fa-list"></i> Listado de Ubicaciones</h5>
         </div>
         <div class="card-body">
@@ -128,18 +128,18 @@
                                     </td>
                                     <td>
                                         <?php if($row['act']): ?>
-                                            <span class="badge bg-success-subtle text-success border border-success"><i class="fa fa-check"></i> Activo</span>
+                                            <span class="badge badge-estado badge-estado-activo"><i class="fa-solid fa-check"></i> Activo</span>
                                         <?php else: ?>
-                                            <span class="badge bg-danger-subtle text-danger border border-danger"><i class="fa fa-times"></i> Inactivo</span>
+                                            <span class="badge badge-estado badge-estado-inactivo"><i class="fa-solid fa-xmark"></i> Inactivo</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="home.php?pg=1017&ope=edi&idubi=<?= $row['idubi']; ?>" class="btn btn-outline-warning btn-sm" title="Editar">
-                                                <i class="fa fa-edit"></i>
+                                        <div class="action-buttons" role="group">
+                                            <a href="home.php?pg=1017&ope=edi&idubi=<?= $row['idubi']; ?>" class="btn btn-outline-primary btn-sm" title="Editar">
+                                                <i class="fa-solid fa-pen-to-square"></i>
                                             </a>
                                             <a href="home.php?pg=1017&ope=eli&idubi=<?= $row['idubi']; ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar esta ubicación?');" title="Eliminar">
-                                                <i class="fa fa-trash"></i>
+                                                <i class="fa-solid fa-trash-can"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -172,3 +172,71 @@ $(document).ready(function() {
     }
 });
 </script>
+
+<style>
+.module-ubicaciones .card-header {
+    letter-spacing: 0.2px;
+}
+
+.module-ubicaciones .form-label {
+    font-weight: 600;
+    color: #334155;
+}
+
+.module-ubicaciones .form-control,
+.module-ubicaciones .form-select {
+    border-color: #d7dfec;
+}
+
+.module-ubicaciones .form-control:focus,
+.module-ubicaciones .form-select:focus {
+    border-color: #3b5998;
+    box-shadow: 0 0 0 0.2rem rgba(59, 89, 152, 0.15);
+}
+
+.module-ubicaciones .btn-primary {
+    background-color: #3b5998;
+    border-color: #3b5998;
+    font-weight: 600;
+}
+
+.module-ubicaciones .btn-primary:hover {
+    background-color: #2d4373;
+    border-color: #2d4373;
+}
+
+.module-ubicaciones .btn-outline-primary {
+    border-color: #3b5998;
+    color: #3b5998;
+}
+
+.module-ubicaciones .btn-outline-primary:hover {
+    background-color: #3b5998;
+    border-color: #3b5998;
+    color: #fff;
+}
+
+.module-ubicaciones .action-buttons {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.module-ubicaciones .badge-estado {
+    padding: 0.4rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.module-ubicaciones .badge-estado-activo {
+    background: #e9f7ef;
+    color: #198754;
+    border: 1px solid #b7e4c7;
+}
+
+.module-ubicaciones .badge-estado-inactivo {
+    background: #fdeeee;
+    color: #dc3545;
+    border: 1px solid #f5c2c7;
+}
+</style>

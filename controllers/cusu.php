@@ -1,5 +1,6 @@
 <?php
 require_once('models/musu.php');
+require_once('controllers/misfun.php');
 
 // ✅ Si es superadmin, obtener empresas para mostrar en el formulario
 $empresas = [];
@@ -19,12 +20,9 @@ $ndousu    = isset($_POST['ndousu']) ? $_POST['ndousu'] : NULL;
 $celusu    = isset($_POST['celusu']) ? $_POST['celusu'] : NULL;
 $emausu    = isset($_POST['emausu']) ? $_POST['emausu'] : NULL;
 $pasusu    = isset($_POST['pasusu']) ? $_POST['pasusu'] : NULL;
-$imgusu    = isset($_POST['imgusu']) ? $_POST['imgusu'] : NULL;
+$imgusu    = NULL;
 $idper     = isset($_POST['idper']) ? $_POST['idper'] : NULL;
 $idemp     = isset($_POST['idemp']) ? $_POST['idemp'] : NULL; // ✅ NUEVO: empresa seleccionada opcionalmente
-$tokreset  = isset($_POST['tokreset']) ? $_POST['tokreset'] : NULL;
-$fecreset  = isset($_POST['fecreset']) ? $_POST['fecreset'] : NULL;
-$ultlogin  = isset($_POST['ultlogin']) ? $_POST['ultlogin'] : NULL;
 $fec_crea  = isset($_POST['fec_crea']) ? $_POST['fec_crea'] : date('Y-m-d H:i:s');
 $fec_actu  = isset($_POST['fec_actu']) ? $_POST['fec_actu'] : date('Y-m-d H:i:s');
 $act       = isset($_POST['act']) ? $_POST['act'] : 1;
@@ -92,17 +90,21 @@ if($ope == "save"){
     $musu->setNdousu($ndousu);
     $musu->setCelusu($celusu);
     $musu->setEmausu($emausu);
-    $musu->setPasusu($pasusu);
-    $musu->setImgusu($imgusu);
     $musu->setIdper($idper);
-    $musu->setTokreset($tokreset);
-    $musu->setFecreset($fecreset);
-    $musu->setUltlogin($ultlogin);
     $musu->setFec_crea($fec_crea);
     $musu->setFec_actu($fec_actu);
     $musu->setAct($act);
 
     if(!$idusu){
+        // Contraseña obligatoria para nuevos usuarios
+        if (empty($pasusu)) {
+            header("Location: home.php?pg=$pg&error=" . urlencode('La contraseña es obligatoria para crear un usuario.'));
+            exit;
+        }
+
+        $musu->setPasusu(generar_hash_contrasena($pasusu));
+        $musu->setImgusu($imgusu);
+
         // 🟢 Guardar usuario nuevo
         $idusu = $musu->save();
 
@@ -116,9 +118,38 @@ if($ope == "save"){
             $usemp->save();
         }
 
+        if ($idusu) {
+            header("Location: home.php?pg=$pg&msg=saved");
+            exit;
+        }
+
+        header("Location: home.php?pg=$pg&error=" . urlencode('No se pudo guardar el usuario.'));
+        exit;
+
     } else {
+        // Mantener contraseña actual si no se envía una nueva
+        $actual = $musu->getOne();
+        if (!empty($pasusu)) {
+            $musu->setPasusu(generar_hash_contrasena($pasusu));
+        } else {
+            $musu->setPasusu($actual['pasusu'] ?? NULL);
+        }
+
+        // Mantener imagen actual si no se sube una nueva
+        if (!empty($imgusu)) {
+            $musu->setImgusu($imgusu);
+        } else {
+            $musu->setImgusu($actual['imgusu'] ?? NULL);
+        }
+
         // 🟡 Editar usuario existente
-        $musu->edit();
+        if ($musu->edit()) {
+            header("Location: home.php?pg=$pg&msg=updated");
+            exit;
+        }
+
+        header("Location: home.php?pg=$pg&error=" . urlencode('No se pudo actualizar el usuario.'));
+        exit;
     }
 }
 

@@ -122,7 +122,7 @@ CREATE TABLE inventario (
     idemp INT(10),
     idprod INT(10),
     idubi INT(10),
-    cant INT,
+    cant DECIMAL(12,2),
     fec_crea DATETIME,
     fec_actu DATETIME
 );
@@ -144,7 +144,7 @@ CREATE TABLE movim (
     idubi INT(10),
     fecmov DATE,
     tipmov TINYINT(2) COMMENT '1=ENTRADA, 2=SALIDA',
-    cantmov INT,
+    cantmov DECIMAL(12,2),
     valmov DECIMAL(12,2),
     costprom DECIMAL(12,2),
     docref VARCHAR(50),
@@ -162,7 +162,7 @@ CREATE TABLE solentrada (
     fecsol DATE,
     fecent DATE,
     tippag VARCHAR(20),
-    estsol VARCHAR(20),
+    estsol VARCHAR(20) DEFAULT 'Pendiente',
     totsol DECIMAL(12,2),
     obssol TEXT,
     idusu INT(10),
@@ -179,7 +179,7 @@ CREATE TABLE solsalida (
     idusu INT(10),
     idubi INT(10),
     refdoc VARCHAR(100),
-    estsal VARCHAR(20)
+    estsal VARCHAR(20) DEFAULT 'Pendiente'
 );
 
 CREATE TABLE detentrada (
@@ -201,7 +201,8 @@ CREATE TABLE detsalida (
     idprod INT(10),
     cantdet DECIMAL(12,2),
     vundet DECIMAL(12,2),
-    idlote INT(10)
+    idlote INT(10),
+    origen VARCHAR(10) DEFAULT 'MANUAL'
 );
 
 CREATE TABLE dominio (
@@ -508,7 +509,7 @@ INSERT INTO `pagina` (`idpag`, `idmod`, `nompag`, `ruta`, `icono`, `orden`, `fec
 (1010, 1, 'Movimientos', 'views/vmovim.php', 'fa fa-exchange-alt', 10, '2025-11-02 02:13:56', NULL, 1),
 (1011, 1, 'Dominios', 'views/vdom.php', 'fa fa-database', 11, '2025-11-02 02:13:56', NULL, 1),
 (1012, 1, 'Valores', 'views/vval.php', 'fa fa-check-circle', 12, '2025-11-02 02:13:56', NULL, 1),
-(1013, 1, 'Solicitud Salida', 'views/vsolsal.php', 'fa fa-file-alt', 13, '2025-11-02 02:13:56', NULL, 1),
+(1013, 1, 'Solicitud Salida', 'views/vsosal.php', 'fa fa-file-alt', 13, '2025-11-02 02:13:56', NULL, 1),
 (1014, 1, 'Detalle salida', 'views/vdetsal.php', 'fa fa-file-alt', 14, '2025-11-02 02:13:56', NULL, 1),
 (1015, 1, 'Solicitud entrada', 'views/vsoent.php', 'fa fa-file-alt', 15, '2025-11-02 02:13:56', NULL, 1),
 (1016, 1, 'Modulo', 'views/vmod.php', 'fa fa-file-alt', 16, '2025-11-02 02:13:56', NULL, 1),

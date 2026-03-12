@@ -103,6 +103,48 @@ class MInv{
         }
     }
 
+    /**
+     * Obtener resumen de stock desde productos y lotes
+     */
+    public function getStockResumen(){
+        try {
+            $idper = isset($_SESSION['idper']) ? $_SESSION['idper'] : NULL;
+            $idemp = isset($_SESSION['idemp']) ? $_SESSION['idemp'] : NULL;
+
+            $sql = "SELECT i.idinv, p.idprod, p.nomprod, p.codprod,
+                           c.nomcat,
+                           u.idubi, u.nomubi, u.codubi,
+                           e.nomemp,
+                           COALESCE(SUM(l.cantact), i.cant, 0) AS cant
+                    FROM producto p
+                    LEFT JOIN lote l ON l.idprod = p.idprod
+                    LEFT JOIN ubicacion u ON l.idubi = u.idubi
+                    LEFT JOIN inventario i ON i.idprod = p.idprod AND i.idubi = l.idubi AND i.idemp = p.idemp
+                    LEFT JOIN categoria c ON p.idcat = c.idcat
+                    LEFT JOIN empresa e ON p.idemp = e.idemp
+                    WHERE p.act = 1";
+
+            if ($idper != 1 && $idemp !== null) {
+                $sql .= " AND p.idemp = :idemp";
+            }
+
+            $sql .= " GROUP BY p.idprod, u.idubi, i.idinv, p.nomprod, p.codprod, c.nomcat, u.nomubi, u.codubi, e.nomemp, i.cant
+                      ORDER BY p.nomprod ASC, u.nomubi ASC";
+
+            $modelo = new conexion();
+            $conexion = $modelo->get_conexion();
+            $result = $conexion->prepare($sql);
+            if ($idper != 1 && $idemp !== null) {
+                $result->bindParam(':idemp', $idemp);
+            }
+            $result->execute();
+            return $result->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("Error en MInv::getStockResumen() - " . $e->getMessage());
+            return [];
+        }
+    }
+
     // ✅ MODIFICADO: Filtra por empresa
     public function getOne(){
         try{
@@ -335,6 +377,127 @@ class MInv{
             return $res;
         }catch(Exception $e){
             echo "Error: ".$e->getMessage()."<br><br>";
+        }
+    }
+
+    /**
+     * Retorna todos los lotes activos de la empresa agrupados por (idprod, idubi).
+     * Resultado: array indexado por "idprod_idubi" => [ [...lote...], ... ]
+     */
+    public function getLotesPorInventario() {
+        try {
+            $idper = isset($_SESSION['idper']) ? $_SESSION['idper'] : null;
+            $idemp = isset($_SESSION['idemp']) ? $_SESSION['idemp'] : null;
+
+            $where = ($idper == 1) ? '' : 'WHERE l.idemp = :idemp';
+
+            $sql = "SELECT l.idlote, l.codlot, l.idprod, l.idubi,
+                           l.cantini, l.cantact, l.costuni, l.fecing, l.fecven,
+                           CASE
+                               WHEN l.fecven IS NULL THEN 'Sin vencimiento'
+                               WHEN l.fecven < CURDATE() THEN 'Vencido'
+                               WHEN l.fecven <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 'Por vencer'
+                               ELSE 'Vigente'
+                           END AS estado_lote
+                    FROM lote l
+                    $where
+                    ORDER BY l.idprod, l.idubi,
+                             (l.fecven IS NULL) DESC,
+                             l.fecven ASC,
+                             l.fecing ASC";
+
+            $modelo = new conexion();
+            $conexion = $modelo->get_conexion();
+            $result = $conexion->prepare($sql);
+            if ($idper != 1) {
+                $result->bindParam(':idemp', $idemp);
+            }
+            $result->execute();
+            $rows = $result->fetchAll(PDO::FETCH_ASSOC);
+
+            // Index by "idprod_idubi"
+            $indexed = [];
+            foreach ($rows as $row) {
+                $key = $row['idprod'] . '_' . (int)$row['idubi'];
+                $indexed[$key][] = $row;
+            }
+            return $indexed;
+        } catch (Exception $e) {
+            error_log("Error en MInv::getLotesPorInventario() - " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Contar lotes asociados a un registro de inventario
+     */
+    public function countLotesByInv($idinv) {
+        try {
+            $idper = isset($_SESSION['idper']) ? $_SESSION['idper'] : null;
+            $idemp = isset($_SESSION['idemp']) ? $_SESSION['idemp'] : null;
+
+            $sql = "SELECT COUNT(*)
+                    FROM lote l
+                    INNER JOIN inventario i ON i.idprod = l.idprod AND i.idubi = l.idubi
+                    WHERE i.idinv = :idinv";
+            if ($idper != 1) {
+                $sql .= " AND i.idemp = :idemp";
+            }
+
+            $modelo = new conexion();
+            $conexion = $modelo->get_conexion();
+            $result = $conexion->prepare($sql);
+            $result->bindParam(':idinv', $idinv);
+            if ($idper != 1) {
+                $result->bindParam(':idemp', $idemp);
+            }
+            $result->execute();
+            return (int)$result->fetchColumn();
+        } catch (Exception $e) {
+            error_log("Error en MInv::countLotesByInv() - " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Sincronizar inventario con el stock actual de lotes
+     */
+    public function syncInventarioFromLotes($idemp, $idprod, $idubi, $conexion = null) {
+        try {
+            $idemp = (int)$idemp;
+            $idprod = (int)$idprod;
+            $idubi = (int)$idubi;
+            if ($idemp <= 0 || $idprod <= 0 || $idubi <= 0) {
+                return false;
+            }
+
+            $cn = $conexion ?: (new conexion())->get_conexion();
+
+            $sqlSum = "SELECT COALESCE(SUM(l.cantact), 0) AS stock_total
+                       FROM lote l
+                       INNER JOIN producto p ON l.idprod = p.idprod
+                       WHERE l.idprod = :idprod AND l.idubi = :idubi AND p.idemp = :idemp";
+            $stmSum = $cn->prepare($sqlSum);
+            $stmSum->execute([
+                ':idprod' => $idprod,
+                ':idubi' => $idubi,
+                ':idemp' => $idemp
+            ]);
+            $stockTotal = (float)$stmSum->fetchColumn();
+
+            $sqlUp = "INSERT INTO inventario (idemp, idprod, idubi, cant, fec_crea, fec_actu)
+                      VALUES (:idemp, :idprod, :idubi, :cant, NOW(), NOW())
+                      ON DUPLICATE KEY UPDATE cant = VALUES(cant), fec_actu = NOW()";
+            $stmUp = $cn->prepare($sqlUp);
+            return $stmUp->execute([
+                ':idemp' => $idemp,
+                ':idprod' => $idprod,
+                ':idubi' => $idubi,
+                ':cant' => $stockTotal
+            ]);
+        } catch (Exception $e) {
+            error_log("Error en MInv::syncInventarioFromLotes() - " . $e->getMessage());
+            return false;
         }
     }
 }

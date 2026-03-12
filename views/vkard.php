@@ -1,6 +1,6 @@
 <?php require_once __DIR__ . '/../controllers/ckard.php'; ?>
-<div class="conte">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+<div class="conte module-panel module-kardex">
+    <div class="d-flex justify-content-between align-items-center mb-3 kardex-toolbar">
         <h2><i class="fa-solid fa-boxes-stacked"></i> Kardex</h2>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
@@ -105,7 +105,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
+                                        <div class="action-buttons" role="group">
                                             <button onclick="verMovimientos(<?= $row['idkar']; ?>)" class="btn btn-outline-info btn-sm" title="Ver Movimientos">
                                                 <i class="fa-solid fa-eye"></i>
                                             </button>

@@ -20,6 +20,7 @@ require_once('controllers/cmod.php');
                             </div>
     </div>
 </form>
+<div class="table-responsive">
 <table id="table" class="table table-striped">
         <thead>
             <tr>
@@ -54,3 +55,4 @@ require_once('controllers/cmod.php');
             </tr>
         </thead>
     </table>
+</div>

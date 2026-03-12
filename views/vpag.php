@@ -16,10 +16,11 @@ require_once('controllers/cpag.php');
                                 <input type="hidden" name="idpag" value="<?php if($datOne &&$datOne[0]['idpag']) echo $datOne[0]['idpag']; ?>">
                                 <input type="hidden" name="ope" value="save">
                                 <br>
-                                <input type="submit" class="form-control btn btn-dark" value="Enviar">
+                                <input type="submit" class="btn btn-primary" value="Guardar Pagina">
                             </div>
     </div>
 </form>
+<div class="table-responsive">
 <table id="table" class="table table-striped">
         <thead>
             <tr>
@@ -35,12 +36,14 @@ require_once('controllers/cpag.php');
                 <td><?=$dt['idpag']."-".$dt['nompag'];?></td>
                 <td><?=$dt['ruta'];?></td>
                 <td>
-                    <a href="javascript:void(0);" onclick="editarPagina(<?=$dt['idpag'];?>);" title="Editar">
-                    <i class="fa-solid fa-pen-to-square fa-2x"></i>
-                    </a>
-                    <a href="javascript:void(0);" onclick="deletePagina(<?=$dt['idpag'];?>);" title="Eliminar">
-                        <i class="fa-solid fa-trash-can fa-2x"></i>
-                    </a>
+                    <div class="action-buttons">
+                        <a href="javascript:void(0);" onclick="editarPagina(<?=$dt['idpag'];?>);" class="btn btn-sm btn-outline-warning" title="Editar" aria-label="Editar pagina">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <a href="javascript:void(0);" onclick="deletePagina(<?=$dt['idpag'];?>);" class="btn btn-sm btn-outline-danger" title="Eliminar" aria-label="Eliminar pagina">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                    </div>
                 </td>
             </tr>
             <?php }}?>
@@ -54,6 +57,7 @@ require_once('controllers/cpag.php');
             </tr>
         </thead>
     </table>
+</div>
 
 <script>
 function editarPagina(idpag) {

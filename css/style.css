@@ -8,7 +8,7 @@
 }
 
 body {
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f4f6f9;
     color: #2c3e50;
     min-height: 100vh;
@@ -29,7 +29,7 @@ section {
 header {
     width: 100%;
     height: 120px;
-    background: linear-gradient(90deg, #3b5998, #5a5f72);
+    background: linear-gradient(90deg, #34495e, #4b5563);
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -42,7 +42,7 @@ header {
 footer {
     width: 100%;
     height: 80px;
-    background: linear-gradient(90deg, #3b5998, #5a5f72);
+    background: linear-gradient(90deg, #34495e, #4b5563);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1119,7 +1119,7 @@ body, html {
     border-radius: 10px !important;
 }
 
-.btn-primary {
+.login-wrapper .btn-primary {
     background-color: var(--primary-blue) !important;
     padding: 14px !important;
     border-radius: 10px !important;
@@ -1140,4 +1140,487 @@ body, html {
 @media (max-width: 992px) {
     .login-side-form { flex: 1; }
     body { overflow-y: auto; }
+}
+
+/* ==========================================================
+   SISTEMA VISUAL GLOBAL (UNIFICACION)
+========================================================== */
+:root {
+    --sp-font-sans: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --sp-primary: #3b5998;
+    --sp-primary-hover: #2d4373;
+    --sp-secondary: #5d6d7e;
+    --sp-secondary-hover: #445362;
+    --sp-success: #198754;
+    --sp-danger: #dc3545;
+    --sp-text: #1f2937;
+    --sp-radius-btn: 10px;
+}
+
+html,
+body,
+input,
+select,
+textarea,
+button,
+.table,
+.nav,
+.navbar,
+.modal-title {
+    font-family: var(--sp-font-sans);
+    color: var(--sp-text);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.inis h2,
+.inis-registro h2,
+.inis-registro h3,
+.titulo-cabecera-final {
+    font-family: var(--sp-font-sans) !important;
+}
+
+.btn {
+    border-radius: var(--sp-radius-btn);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary,
+.btn-primary-custom,
+.btn-gradient,
+.btn-create-empresa {
+    background-color: var(--sp-primary) !important;
+    border-color: var(--sp-primary) !important;
+    color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-primary-custom:hover,
+.btn-gradient:hover,
+.btn-create-empresa:hover {
+    background-color: var(--sp-primary-hover) !important;
+    border-color: var(--sp-primary-hover) !important;
+    color: #fff !important;
+}
+
+.btn-secondary,
+.btn-outline-secondary:hover {
+    background-color: var(--sp-secondary) !important;
+    border-color: var(--sp-secondary) !important;
+    color: #fff !important;
+}
+
+.btn-secondary:hover {
+    background-color: var(--sp-secondary-hover) !important;
+    border-color: var(--sp-secondary-hover) !important;
+}
+
+.btn-outline-primary {
+    color: var(--sp-primary) !important;
+    border-color: var(--sp-primary) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--sp-primary) !important;
+    border-color: var(--sp-primary) !important;
+    color: #fff !important;
+}
+
+.btn-success {
+    background-color: var(--sp-success) !important;
+    border-color: var(--sp-success) !important;
+}
+
+.btn-danger {
+    background-color: var(--sp-danger) !important;
+    border-color: var(--sp-danger) !important;
+}
+
+.header-limpio {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.titulo-cabecera-final {
+    margin: 0;
+    color: #ffffff;
+    font-family: var(--sp-font-sans);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.footer-minimal {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.footer-minimal p {
+    margin: 2px 0;
+    color: #ffffff;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+}
+
+.footer-minimal .copyright {
+    font-weight: 700;
+}
+
+/* ==========================================================
+   CAPA RESPONSIVE GLOBAL (TODOS LOS MODULOS)
+========================================================== */
+
+img,
+video,
+iframe,
+canvas,
+svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.table td .btn,
+.table td a.btn,
+.btn-group .btn,
+.table .btn-group .btn {
+    width: auto !important;
+    margin-top: 0 !important;
+}
+
+@media (max-width: 992px) {
+    section {
+        padding: 20px 12px;
+        min-height: auto;
+    }
+
+    header {
+        height: auto;
+        min-height: 72px;
+        padding: 8px 10px;
+    }
+
+    footer {
+        height: auto;
+        min-height: 64px;
+        padding: 8px 10px;
+    }
+
+    #main-content-wrapper {
+        padding: 12px !important;
+    }
+
+    .container,
+    .container-fluid {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .modal-dialog {
+        margin: 0.6rem;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Revierte reglas antiguas que forzaban todo en columna y rompian grillas */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row !important;
+    }
+
+    .row > [class*="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    /* No forzar botones de tablas/listados a 100% */
+    .btn {
+        font-size: 0.95rem;
+    }
+
+    form .btn,
+    form input[type="submit"].btn,
+    form button[type="submit"].btn,
+    .login-wrapper .btn,
+    .inis .btn,
+    .inis-registro .btn,
+    .modal-footer .btn {
+        width: 100% !important;
+    }
+
+    .modal-footer {
+        gap: 0.5rem;
+    }
+
+    .modal-body {
+        padding: 0.9rem;
+    }
+
+    .table-responsive {
+        border-radius: 0.5rem;
+    }
+
+    .table {
+        min-width: 680px;
+        font-size: 0.86rem;
+    }
+
+    table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table td,
+    .table th {
+        white-space: nowrap !important;
+    }
+
+    .dataTables_wrapper .row {
+        row-gap: 0.6rem;
+    }
+
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        width: 100%;
+        text-align: left !important;
+    }
+
+    .inis-registro,
+    .inis,
+    .form-container-inner {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* En registro, una sola columna en movil para mejor legibilidad */
+    .inis-registro .col-md-4,
+    .inis-registro .col-md-6,
+    .inis-registro .col-md-8 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 576px) {
+    h2 {
+        font-size: 1.2rem;
+        margin-bottom: 14px;
+    }
+
+    .table {
+        min-width: 620px;
+    }
+
+    .mobile-brand {
+        margin-bottom: 22px;
+        font-size: 1.35rem;
+    }
+}
+
+/* ==========================================================
+   RESPUESTA FINA MODULOS CRITICOS
+========================================================== */
+.module-panel .action-buttons {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-width: 120px;
+}
+
+.module-panel .action-buttons .btn {
+    width: auto !important;
+    margin-top: 0 !important;
+    line-height: 1;
+}
+
+.module-panel h2 {
+    font-size: clamp(1.2rem, 2vw, 1.7rem);
+    font-weight: 700;
+    margin-bottom: 0.9rem;
+    color: #1f2937;
+}
+
+.module-panel .card {
+    border: 1px solid #e5eaf2;
+    border-radius: 0.8rem;
+}
+
+.module-panel .card-header {
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.2px;
+}
+
+.module-panel .btn {
+    border-radius: 0.62rem;
+}
+
+.module-panel .btn-sm {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.78rem;
+}
+
+.module-panel .btn-primary,
+.module-panel .btn-gradient,
+.module-panel .btn-create-empresa {
+    min-height: 40px;
+}
+
+.module-panel .table thead th {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.module-panel .table td {
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .module-panel .d-flex.justify-content-between {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.55rem;
+    }
+
+    .module-panel .breadcrumb {
+        margin-top: 0.25rem;
+    }
+
+    .module-panel .card-header,
+    .module-panel .card-body {
+        padding: 0.8rem;
+    }
+
+    .module-panel .form-group,
+    .module-panel .col-md-4,
+    .module-panel .col-md-6,
+    .module-panel .col-md-12 {
+        margin-bottom: 0.35rem;
+    }
+
+    .module-panel h2 {
+        font-size: 1.18rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .module-panel .btn-primary,
+    .module-panel .btn-gradient,
+    .module-panel .btn-create-empresa {
+        min-height: 38px;
+    }
+
+    .module-panel .table td,
+    .module-panel .table th {
+        font-size: 0.82rem;
+    }
+}
+
+/* =====================================
+   SCROLL HORIZONTAL GLOBAL DE TABLAS
+===================================== */
+.table-scroll-x-auto {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll-x-auto > table {
+    min-width: max-content;
+}
+
+.table-scroll-x-auto > table.table {
+    min-width: 900px;
+}
+
+.table-scroll-x-auto > table th,
+.table-scroll-x-auto > table td {
+    white-space: nowrap !important;
+}
+
+@media (max-width: 768px) {
+    .table-scroll-x-auto > table.table {
+        min-width: 680px;
+    }
+}
+
+/* =====================================
+   ALERTAS SUCCESS GLOBALES
+===================================== */
+.alert.alert-success {
+    background: #eaf7ef;
+    border: 1px solid #b7e4c7;
+    border-left: 5px solid #198754;
+    color: #14532d;
+    border-radius: 0.7rem;
+    box-shadow: 0 6px 14px -10px rgba(20, 83, 45, 0.45);
+}
+
+.alert.alert-success a {
+    color: #14532d;
+    font-weight: 600;
+}
+
+.alert.alert-success .btn-close {
+    filter: none;
+    opacity: 0.75;
+}
+
+.alert.alert-success .btn-close:hover {
+    opacity: 1;
+}
+
+/* Guardas globales para que TODAS las tablas de datos se puedan desplazar lateralmente en movil */
+@media (max-width: 992px) {
+    #main-content-wrapper,
+    .module-panel,
+    .card-body,
+    .table-responsive,
+    .table-scroll-x-auto,
+    .dataTables_wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-responsive > table,
+    .table-scroll-x-auto > table,
+    .dataTables_wrapper table,
+    table.table {
+        width: max-content !important;
+        min-width: 760px !important;
+    }
+
+    .table-responsive > table th,
+    .table-responsive > table td,
+    .table-scroll-x-auto > table th,
+    .table-scroll-x-auto > table td,
+    .dataTables_wrapper table th,
+    .dataTables_wrapper table td,
+    table.table th,
+    table.table td {
+        white-space: nowrap !important;
+        word-break: normal !important;
+    }
 }

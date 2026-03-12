@@ -176,12 +176,13 @@ class Msosal {
     // OBTENER DETALLES DE UNA SALIDA
     public function getDetalles(){
         try{
-            $sql = "SELECT d.iddsal, d.idemp, d.idsal, d.idprod, d.cantdet, d.vundet, d.idlote,
-                           (d.cantdet * d.vundet) AS totdet,
-                           p.nomprod,
-                           l.codlot,
-                           l.fecven,
-                           l.costuni AS costuni_lote
+                 $sql = "SELECT d.iddsal, d.idemp, d.idsal, d.idprod, d.cantdet, d.vundet, d.idlote, d.origen,
+                          (d.cantdet * d.vundet) AS totdet,
+                          p.nomprod,
+                          l.codlot,
+                          l.fecven,
+                          l.costuni AS costuni_lote,
+                          l.cantact AS cantact_lote
                     FROM detsalida d
                     LEFT JOIN producto p ON d.idprod = p.idprod
                     LEFT JOIN lote l ON d.idlote = l.idlote

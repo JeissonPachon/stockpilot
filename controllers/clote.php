@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . '/../models/mlote.php';
 require_once __DIR__ . '/../models/mprod.php';
+require_once __DIR__ . '/../models/minv.php';
 require_once __DIR__ . '/../models/conexion.php';
 
 $mlote = new Mlote();
 $mprod = new Mprod();
+$minv  = new MInv();
 
 $idper = $_SESSION['idper'] ?? NULL;
 $idemp = $_SESSION['idemp'] ?? NULL;
@@ -37,10 +39,16 @@ if ($ope == "save") {
 
     if ($idlote) {
         $ok = $mlote->edit();
+        if ($ok) {
+            $minv->syncInventarioFromLotes($idemp, $idprod, $idubi);
+        }
         $_SESSION['mensaje']      = $ok ? "Lote actualizado correctamente." : "Error al actualizar el lote.";
         $_SESSION['tipo_mensaje'] = $ok ? "success" : "danger";
     } else {
         $ok = $mlote->save();
+        if ($ok) {
+            $minv->syncInventarioFromLotes($idemp, $idprod, $idubi);
+        }
         $_SESSION['mensaje']      = $ok ? "Lote registrado correctamente." : "Error al registrar el lote.";
         $_SESSION['tipo_mensaje'] = $ok ? "success" : "danger";
     }
@@ -50,7 +58,11 @@ if ($ope == "save") {
 
 // ── ELIMINAR ──────────────────────────────────────────────────
 if ($ope == "eli" && $idlote) {
+    $lotePrevio = $mlote->getOne();
     $ok = $mlote->del();
+    if ($ok && $lotePrevio) {
+        $minv->syncInventarioFromLotes($idemp, (int)$lotePrevio['idprod'], (int)($lotePrevio['idubi'] ?? 0));
+    }
     $_SESSION['mensaje']      = $ok ? "Lote eliminado correctamente." : "Error al eliminar el lote.";
     $_SESSION['tipo_mensaje'] = $ok ? "success" : "danger";
     echo "<script>window.location.href='home.php?pg=".($pg ?? 1008)."';</script>";
